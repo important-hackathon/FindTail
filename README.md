@@ -1,4 +1,4 @@
-# Welcome to My Awesome Project! 🎉
+# Welcome to our team's repo ! 🎉
 
 ![Let's Go!](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdGJ6czBjcGplb3Y2bWpka3U1Y3d1cXZyZHB0ZWl1ZnZjbHNoaDNrdyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/qgQUggAC3Pfv687qPC/giphy.gif)
 
