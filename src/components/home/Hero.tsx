@@ -40,7 +40,7 @@ export default function Hero() {
                         className="absolute top-0 left-0 w-full h-auto z-0"
                     />
                     <Image
-                        src="/assets/images/dog-cat-main-page.svg"
+                        src="/assets/images/hero-catdog.svg"
                         alt="dog and cat"
                         width={700}
                         height={700}
