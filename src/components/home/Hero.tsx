@@ -29,7 +29,7 @@ export default function Hero() {
                         alt="shape"
                         width={700}
                         height={700}
-                        className="absolute top-0 left-0 w-full h-auto z-0"
+                        className="absolute top-[-85px] left-0 w-full h-[500px] z-10"
                     />
                     <Image
                         src="/assets/images/hero-catdog.svg"
