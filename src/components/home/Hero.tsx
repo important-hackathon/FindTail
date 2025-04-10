@@ -3,18 +3,10 @@ import Image from 'next/image';
 export default function Hero() {
     return (
         <section className="relative bg-[#FDF5EB] overflow-hidden">
-            {/*<Image*/}
-            {/*    src="/assets/images/vector.svg"*/}
-            {/*    alt="decorative path"*/}
-            {/*    width={250}*/}
-            {/*    height={250}*/}
-            {/*    className="absolute top-4 left-4 sm:left-10 z-0"*/}
-            {/*/>*/}
-
             <div className="max-w-7xl mx-auto px-4 py-20 relative z-10 flex flex-col-reverse lg:flex-row items-center gap-16">
                 <div className="lg:w-1/2 text-center lg:text-left">
                     <Image
-                        src="/assets/images/findtail-main-page.png"
+                        src="/assets/images/findtail-hero-logo.png"
                         alt="FindTail Logo"
                         width={250}
                         height={80}
@@ -33,7 +25,7 @@ export default function Hero() {
 
                 <div className="lg:w-1/2 relative">
                     <Image
-                        src="/assets/images/vector.svg"
+                        src="/assets/images/hero-shape.svg"
                         alt="shape"
                         width={700}
                         height={700}
