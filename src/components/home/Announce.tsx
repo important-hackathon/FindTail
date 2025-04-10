@@ -4,7 +4,7 @@ import Link from 'next/link';
 export default function Announce() {
     return (
         <section className="relative bg-[#FDF5EB] overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4 py-24 relative z-10 flex flex-col-reverse lg:flex-row items-center gap-16">
+            <div className="max-w-7xl mx-auto px-4 py-24 relative z-20 flex flex-col-reverse lg:flex-row items-center gap-16">
                 <div className="lg:w-3/4 text-center lg:text-left text-[#432907]">
                     <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-4">
                         Врятуй життя — передай до притулку
@@ -32,14 +32,6 @@ export default function Announce() {
                     />
                 </div>
             </div>
-
-            <Image
-                src="/assets/images/line-wave-3.svg"
-                alt="decorative path"
-                width={900}
-                height={300}
-                className="absolute top-0 right-0 z-0"
-            />
         </section>
     );
 }

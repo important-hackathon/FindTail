@@ -4,15 +4,7 @@ import Dropdown from '@/components/ui/Dropdown';
 export default function Find() {
     return (
         <section className="relative bg-[#E4EAF1] overflow-hidden">
-            <Image
-                src="/assets/images/line-wave-2.svg"
-                alt="decorative path"
-                width={900}
-                height={600}
-                className="absolute -top-8 left-0 z-0"
-            />
-
-            <div className="max-w-7xl mx-auto px-4 py-24 relative z-10 flex flex-col lg:flex-row items-center gap-16">
+            <div className="max-w-7xl mx-auto px-4 py-24 relative flex flex-col lg:flex-row items-center gap-16">
                 <div className="lg:w-1/2 relative">
                     <div className="absolute top-0 left-0 w-full h-full z-0">
                         <Image
@@ -28,7 +20,7 @@ export default function Find() {
                         alt="dog and cat"
                         width={700}
                         height={700}
-                        className="relative z-10"
+                        className="relative z-20"
                     />
                 </div>
 

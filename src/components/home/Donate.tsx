@@ -6,13 +6,13 @@ export default function Donate() {
         <section className="relative bg-[#E4EAF1] overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 py-24 relative z-10 flex flex-col lg:flex-row items-center gap-16">
                 <div className="lg:w-1/2 relative">
-                    <div className="absolute top-0 left-0 w-full h-full z-0">
+                    <div className="absolute top-35 right-30 w-full h-full z-0">
                         <Image
                             src="/assets/images/donate-shape.svg"
                             alt="shape"
-                            width={700}
-                            height={700}
-                            className="w-full h-auto"
+                            width={600}
+                            height={600}
+                            className="w-full h-3/4"
                         />
                     </div>
                     <Image
@@ -41,14 +41,6 @@ export default function Donate() {
                     </Link>
                 </div>
             </div>
-
-            <Image
-                src="/assets/images/line-wave-4.svg"
-                alt="decorative path"
-                width={1000}
-                height={300}
-                className="absolute bottom-0 left-0 z-0"
-            />
         </section>
     );
 }
