@@ -1,7 +1,7 @@
 export const shelterTypeOptions = [
-  { label: "Animal Shelter", value: "animal_shelter" },
-  { label: "Veterinary Clinic", value: "vet_clinic" },
-  { label: "Breeder", value: "breeder" },
-  { label: "Rescue Group", value: "rescue_group" },
-  { label: "Other", value: "other" },
+  { label: "Притулок для тварин", value: "animal_shelter" },
+  { label: "Ветеринарна клініка", value: "vet_clinic" },
+  { label: "Розплідник", value: "breeder" },
+  { label: "Рятувальна організація", value: "rescue_group" },
+  { label: "Інше", value: "other" },
 ];
