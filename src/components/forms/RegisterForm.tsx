@@ -147,6 +147,14 @@ export default function RegisterForm() {
           handleChange={handleChange}
         />
 
+        <RegisterTextInput
+          type="tel"
+          name="phoneNumber"
+          label="Номер телефону"
+          value={formData.phoneNumber}
+          handleChange={handleChange}
+        />
+
         {/* Volunteer-specific fields */}
         {userType === "volunteer" && (
           <>
@@ -155,14 +163,6 @@ export default function RegisterForm() {
               name="fullName"
               label="Повне ім'я"
               value={formData.fullName}
-              handleChange={handleChange}
-            />
-
-            <RegisterTextInput
-              type="tel"
-              name="phoneNumber"
-              label="Номер телефону"
-              value={formData.phoneNumber}
               handleChange={handleChange}
             />
 
