@@ -36,7 +36,7 @@ export default function Hero() {
                         alt="dog and cat"
                         width={700}
                         height={700}
-                        className="relative z-10"
+                        className="relative z-20"
                         priority
                     />
                 </div>

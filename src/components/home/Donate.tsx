@@ -4,7 +4,7 @@ import Link from 'next/link';
 export default function Donate() {
     return (
         <section className="relative bg-[#E4EAF1] overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4 py-24 relative z-10 flex flex-col lg:flex-row items-center gap-16">
+            <div className="max-w-7xl mx-auto px-4 py-24 relative flex flex-col lg:flex-row items-center gap-16">
                 <div className="lg:w-1/2 relative">
                     <div className="absolute top-35 right-30 w-full h-full z-0">
                         <Image
@@ -24,7 +24,7 @@ export default function Donate() {
                     />
                 </div>
 
-                <div className="lg:w-1/2 text-center lg:text-left text-[#432907]">
+                <div className="lg:w-1/2 text-center lg:text-left text-[#432907] z-20">
                     <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-4">
                         Донат для хвостатих
                     </h2>

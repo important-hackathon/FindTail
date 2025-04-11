@@ -24,7 +24,7 @@ export default function Find() {
                     />
                 </div>
 
-                <div className="lg:w-1/2 text-center lg:text-left text-[#432907]">
+                <div className="lg:w-1/2 text-center lg:text-left text-[#432907] z-20">
                     <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-4">Знайди собі друга!</h2>
                     <p className="text-base sm:text-lg mb-6">
                         Після початку повномасштабної війни тисячі тварин залишились без домівок. Ми створили платформу, щоб дати кожній тварині шанс на нове життя.
