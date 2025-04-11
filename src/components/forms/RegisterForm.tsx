@@ -184,7 +184,7 @@ export default function RegisterForm() {
               name="shelterName"
               value={formData.shelterName}
               handleChange={handleChange}
-              label="Ім'я закладу"
+              label="Назва закладу"
             />
 
             <RegisterDropDown
@@ -197,7 +197,7 @@ export default function RegisterForm() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Description
+                Короткий опис
               </label>
               <textarea
                 name="description"
