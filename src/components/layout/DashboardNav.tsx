@@ -24,7 +24,7 @@ export default function DashboardNav() {
     const isActive = (href: string) => pathname.startsWith(href);
 
     return (
-        <div className="bg-[#FDF5EB] border-t border-[#e3d7c5] shadow-sm py-3 px-6">
+        <div className="bg-[#FDF5EB] border-t border-[#e3d7c5] shadow-sm py-3 px-6 md:mt-0 mt-3">
             <div className="max-w-7xl mx-auto flex justify-end gap-6 text-[#432907] font-semibold text-sm">
                 {dashboardNav.map((item) => (
                     <Link
