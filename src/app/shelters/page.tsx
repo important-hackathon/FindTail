@@ -3,13 +3,16 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase/client";
 import ShelterCard from "@/components/shelters/ShelterCard";
+import SearchShelters from "@/components/shelters/SearchShelters";
+import ShelterSelect from "@/components/shelters/ShelterSelect";
+import { shelterTypeOptions } from "@/constants/shelterTypeOptions";
 
 export default function SheltersPage() {
   const [shelters, setShelters] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [shelterType, setShelterType] = useState<string>("");
 
   useEffect(() => {
     fetchShelters();
@@ -65,7 +68,7 @@ export default function SheltersPage() {
         .includes(searchQuery.toLowerCase());
 
     const typeMatch =
-      !filterType || shelter.shelter_details?.shelter_type === filterType;
+      !shelterType || shelter.shelter_details?.shelter_type === shelterType;
 
     return (nameMatch || locationMatch) && typeMatch;
   });
@@ -76,35 +79,19 @@ export default function SheltersPage() {
 
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
         <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Search Shelters
-            </label>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by name or location"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
+          <SearchShelters
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            label="Пошук притулків"
+          />
 
           <div className="sm:w-64">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Shelter Type
-            </label>
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="">All Types</option>
-              <option value="animal_shelter">Animal Shelter</option>
-              <option value="vet_clinic">Veterinary Clinic</option>
-              <option value="rescue_group">Rescue Group</option>
-              <option value="breeder">Breeder</option>
-              <option value="other">Other</option>
-            </select>
+            <ShelterSelect
+              label="Тип притулку"
+              shelterType={shelterType}
+              setShelterType={setShelterType}
+              items={shelterTypeOptions}
+            />
           </div>
         </div>
       </div>

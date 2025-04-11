@@ -8,7 +8,7 @@ import SwitchButton from "./SwitchButton";
 import TextInput from "./TextInput";
 import RegisterTextInput from "./RegisterTextInput";
 import RegisterDropDown from "./RegisterDropDown";
-import { shelterTypeOptions } from "./dropDownOptions";
+import { shelterTypeOptions } from "@/constants/shelterTypeOptions";
 import AuthButton from "./AuthButton";
 import RememberMe from "./RememberMe";
 
