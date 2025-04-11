@@ -30,7 +30,7 @@ export default function SheltersPage() {
         `)
         .eq('user_type', 'shelter')
         .eq('animals.is_adopted', false)
-        .order('shelter_details(shelter_name)');
+        .order('created_at', { ascending: false });
         
       if (error) throw error;
       
@@ -51,9 +51,14 @@ export default function SheltersPage() {
   
   // Filter shelters based on search query and filter type
   const filteredShelters = shelters.filter(shelter => {
-    const nameMatch = shelter.shelter_details.shelter_name.toLowerCase().includes(searchQuery.toLowerCase());
-    const locationMatch = shelter.shelter_details.location.toLowerCase().includes(searchQuery.toLowerCase());
-    const typeMatch = !filterType || shelter.shelter_details.shelter_type === filterType;
+    // Перевірка на наявність shelter_details перед доступом до властивостей
+    const shelterName = shelter.shelter_details?.shelter_name || '';
+    const shelterLocation = shelter.shelter_details?.location || '';
+    const shelterType = shelter.shelter_details?.shelter_type || '';
+    
+    const nameMatch = shelterName.toLowerCase().includes(searchQuery.toLowerCase());
+    const locationMatch = shelterLocation.toLowerCase().includes(searchQuery.toLowerCase());
+    const typeMatch = !filterType || shelterType === filterType;
     
     return (nameMatch || locationMatch) && typeMatch;
   });

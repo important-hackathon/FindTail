@@ -20,7 +20,7 @@ interface AuthContextType {
   user: User | null;
   profile: any | null;
   loading: boolean;
-  signUp: (email: string, password: string, userType: string, profileData: ProfileData) => Promise<{ user?: User; error?: any }>;
+  signUp: (email: string, password: string, userType: string, userData: ProfileData) => Promise<{ user?: User; error?: any }>;
   signIn: (email: string, password: string) => Promise<{ user?: User; error?: any }>;
   signOut: () => Promise<void>;
   isVolunteer: boolean;
@@ -38,22 +38,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Check active session
     const getSession = async () => {
-      const { data, error } = await supabase.auth.getSession();
-      if (!error && data.session) {
-        setUser(data.session.user);
-        await fetchUserProfile(data.session.user.id);
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Session error:', error);
+          setLoading(false);
+          return;
+        }
+        
+        if (data.session) {
+          setUser(data.session.user);
+          // Try to fetch profile, but don't block on failure
+          await fetchUserProfile(data.session.user.id);
+        }
+      } catch (err) {
+        console.error('Session check error:', err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     getSession();
 
-    // Listen for auth changes with proper type declarations
+    // Listen for auth changes
     const { data } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: Session | null) => {
         setUser(session?.user || null);
         if (session?.user) {
-          await fetchUserProfile(session.user.id);
+          try {
+            await fetchUserProfile(session.user.id);
+          } catch (err) {
+            console.error('Profile fetch error during auth change:', err);
+          }
         } else {
           setProfile(null);
         }
@@ -68,24 +84,84 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const fetchUserProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select(`
-        *,
-        shelter_details(*)
-      `)
-      .eq('id', userId)
-      .single();
+    try {
+      // First, try to fetch just the profile without nested queries
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
 
-    if (error) {
-      console.error('Error fetching profile:', error);
-      return;
+      if (error) {
+        console.error('Error fetching profile:', error);
+        
+        // If there's an error, create a minimal profile as fallback
+        const userType = await determineUserType(userId);
+        setProfile({
+          id: userId,
+          user_type: userType || 'volunteer', // Default to volunteer if unknown
+          full_name: 'User', // Default name
+          // Add other required fields with defaults
+        });
+        return;
+      }
+
+      // If we successfully got the profile, check if it's a shelter
+      if (data && data.user_type === 'shelter') {
+        try {
+          // Fetch shelter details separately
+          const { data: shelterData, error: shelterError } = await supabase
+            .from('shelter_details')
+            .select('*')
+            .eq('profile_id', userId)
+            .single();
+            
+          if (!shelterError && shelterData) {
+            // Combine the data
+            setProfile({
+              ...data,
+              shelter_details: shelterData
+            });
+            return;
+          }
+        } catch (shelterErr) {
+          console.error('Error fetching shelter details:', shelterErr);
+        }
+      }
+      
+      // If we're here, either it's not a shelter or we couldn't get shelter details
+      setProfile(data);
+    } catch (err) {
+      console.error('Unexpected error in fetchUserProfile:', err);
+      // Set a minimal profile as fallback
+      setProfile({
+        id: userId,
+        user_type: 'unknown'
+      });
     }
-
-    setProfile(data);
   };
 
-  const signUp = async (email: string, password: string, userType: string, profileData: ProfileData) => {
+  // Helper to determine user type if profile fetch fails
+  const determineUserType = async (userId: string) => {
+    try {
+      // Try to check if there's a shelter_details entry
+      const { data, error } = await supabase
+        .from('shelter_details')
+        .select('profile_id')
+        .eq('profile_id', userId);
+        
+      if (!error && data && data.length > 0) {
+        return 'shelter';
+      }
+      
+      return 'volunteer'; // Default if no shelter details found
+    } catch (err) {
+      console.error('Error determining user type:', err);
+      return null;
+    }
+  };
+
+  const signUp = async (email: string, password: string, userType: string, userData: ProfileData) => {
     try {
       setLoading(true);
       
@@ -98,33 +174,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (authError) throw authError;
       if (!authData.user) throw new Error('No user returned from sign up');
 
-      // Create profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: authData.user.id,
-          user_type: userType,
-          full_name: profileData.fullName,
-          phone_number: profileData.phoneNumber,
-          address: profileData.address
-        });
-
-      if (profileError) throw profileError;
-
-      // If shelter, create shelter details
-      if (userType === 'shelter') {
-        const { error: shelterError } = await supabase
-          .from('shelter_details')
+      // Add delay before creating profile
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      try {
+        // Create profile
+        const { error: profileError } = await supabase
+          .from('profiles')
           .insert({
-            profile_id: authData.user.id,
-            shelter_name: profileData.shelterName,
-            shelter_type: profileData.shelterType,
-            description: profileData.description,
-            location: profileData.location,
-            website: profileData.website
+            id: authData.user.id,
+            user_type: userType,
+            full_name: userData.fullName,
+            phone_number: userData.phoneNumber || null,
+            address: userData.address || null
           });
 
-        if (shelterError) throw shelterError;
+        if (profileError) {
+          console.error('Profile creation error:', profileError);
+          // Continue execution - confirmation email was sent
+        }
+
+        // If shelter, try to create shelter details
+        if (userType === 'shelter') {
+          try {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            const { error: shelterError } = await supabase
+              .from('shelter_details')
+              .insert({
+                profile_id: authData.user.id,
+                shelter_name: userData.shelterName || userData.fullName || 'New Shelter',
+                shelter_type: userData.shelterType || 'animal_shelter',
+                description: userData.description || '',
+                location: userData.location || userData.address || '',
+                website: userData.website || ''
+              });
+
+            if (shelterError) {
+              console.error('Shelter details creation error:', shelterError);
+              // Don't stop execution due to error
+            }
+          } catch (err) {
+            console.error('Error with shelter details:', err);
+            // Ignore error - user can add details later
+          }
+        }
+      } catch (err) {
+        console.error('Profile setup error:', err);
+        // Even if profile creation fails, 
+        // user is registered and can set up profile later
       }
 
       return { user: authData.user };
@@ -155,8 +253,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/');
+    setLoading(true);
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      setProfile(null);
+      router.push('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const value = {
