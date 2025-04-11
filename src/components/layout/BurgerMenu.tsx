@@ -7,6 +7,7 @@ import { Menu, X, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { mainNavigation } from '@/constants/navigation';
 import clsx from 'clsx';
+import Image from 'next/image';
 
 export default function BurgerMenu() {
     const pathname = usePathname();
@@ -32,7 +33,7 @@ export default function BurgerMenu() {
         <>
             <button
                 onClick={openMenu}
-                className="text-[#432907] flex item-center"
+                className="text-[#432907] flex items-center relative z-50"
                 aria-label="Відкрити меню"
             >
                 <Menu className="w-7 h-7" />
@@ -47,6 +48,18 @@ export default function BurgerMenu() {
                             : '-translate-y-full opacity-0 pointer-events-none'
                     )}
                 >
+                    <div className="absolute top-5 left-5">
+                        <Link href="/">
+                            <Image
+                                src="/assets/images/findtail-logo.svg"
+                                alt="FindTail Logo"
+                                width={100}
+                                height={40}
+                                onClick={closeMenu}
+                            />
+                        </Link>
+                    </div>
+
                     <button
                         onClick={closeMenu}
                         className="absolute top-5 right-5 text-[#432907]"

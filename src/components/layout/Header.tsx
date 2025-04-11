@@ -9,17 +9,19 @@ import { mainNavigation } from '@/constants/navigation';
 import BurgerMenu from './BurgerMenu';
 
 export default function Header() {
-    const { user, signOut, loading } = useAuth();
+    const { user, profile, loading, signOut, isVolunteer, isShelter } = useAuth();
     const pathname = usePathname();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-    const isActive = (href: string) =>
-        href === '/' ? pathname === '/' : pathname.startsWith(href);
+    const isActive = (href: string) => {
+        if (href === '/') return pathname === '/';
+        return pathname.startsWith(href);
+    };
 
     return (
-        <header className="absolute top-0 left-0 w-full bg-[#FDF5EB] py-4 px-6 z-50 shadow-sm">
+        <header className="absolute top-0 left-0 w-full bg-[#FDF5EB] py-4 px-6">
             <div className="max-w-7xl mx-auto flex justify-between items-center">
-                <div>
+                <div className="z-50">
                     <Link href="/">
                         <Image
                             src="/assets/images/findtail-logo.svg"
@@ -30,7 +32,7 @@ export default function Header() {
                     </Link>
                 </div>
 
-                <nav className="hidden md:flex gap-10 text-[#432907] font-bold text-sm uppercase">
+                <nav className="hidden md:flex gap-10 text-[#432907] font-bold text-sm uppercase z-50">
                     {mainNavigation.map((item) => (
                         <Link
                             key={item.name}
