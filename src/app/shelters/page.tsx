@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import ShelterCard from '@/components/shelters/ShelterCard';
+import { fixMissingShelterDetails } from '@/lib/helpers';
 
 export default function SheltersPage() {
   const [shelters, setShelters] = useState<any[]>([]);
@@ -19,6 +20,9 @@ export default function SheltersPage() {
     try {
       setLoading(true);
       setError(null);
+
+      // Fetch missing shelters
+      await fixMissingShelterDetails();
       
       // Get all shelters with animal count
       const { data, error } = await supabase
