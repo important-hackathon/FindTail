@@ -14,7 +14,7 @@ export default function Header() {
   const navigation = [
     { name: 'Головна', href: '/' },
     { name: 'Пошук', href: '/animals' },
-    { name: 'Каталог', href: '/catalog' },
+    { name: 'Каталог', href: '/shelters' },
     { name: 'Контакти', href: '/contacts' },
     { name: 'Кабінет', href: '/dashboard' },
   ];

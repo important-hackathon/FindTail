@@ -7,7 +7,7 @@ import Footer from "@/components/layout/footer/Footer";
 
 export default function HomePage() {
     return (
-        <div className="relative">
+        <div className="relative -mt-12">
             <Hero />
             <Find />
             <Announce />

@@ -22,7 +22,7 @@ export default function RootLayout({
         <AuthProvider>
           <div className="min-h-screen bg-gray-50 flex flex-col">
             <Header />
-            <main className="flex-grow">
+            <main className="flex-grow mt-12">
               {children}
             </main>
           </div>
