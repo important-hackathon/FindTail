@@ -1,17 +1,42 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Dropdown from '@/components/ui/Dropdown';
 
 interface AnimalSearchProps {
   onSearch: (filters: any) => void;
   initialFilters?: any;
 }
 
+const speciesOptions = [
+  { label: 'Кіт', value: 'cat' },
+  { label: 'Собака', value: 'dog' },
+  { label: 'Інше', value: 'other' },
+];
+
+const genderOptions = [
+  { label: 'Хлопчик', value: 'male' },
+  { label: 'Дівчинка', value: 'female' },
+];
+
+const ageOptions = [
+  { label: 'До 1 року', value: '1' },
+  { label: 'До 3 років', value: '3' },
+  { label: 'До 5 років', value: '5' },
+  { label: 'До 10 років', value: '10' },
+];
+
+const healthOptions = [
+  { label: 'Здорова', value: 'healthy' },
+  { label: 'Потребує догляду', value: 'needs_care' },
+  { label: 'Терміново', value: 'urgent' },
+];
+
 export default function AnimalSearch({ onSearch, initialFilters = {} }: AnimalSearchProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [filters, setFilters] = useState({
     species: initialFilters.species || searchParams.get('species') || '',
     gender: initialFilters.gender || searchParams.get('gender') || '',
@@ -20,169 +45,95 @@ export default function AnimalSearch({ onSearch, initialFilters = {} }: AnimalSe
     location: initialFilters.location || searchParams.get('location') || '',
     search: initialFilters.search || searchParams.get('search') || '',
   });
-  
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+
+  const handleDropdownChange = (name: string, value: string) => {
+    setFilters(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFilters(prev => ({ ...prev, [name]: value }));
   };
-  
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Remove empty filters
     const activeFilters = Object.fromEntries(
-      Object.entries(filters).filter(([_, value]) => value !== '')
+        Object.entries(filters).filter(([_, value]) => value !== '')
     );
-    
-    // Call the onSearch callback
+
     onSearch(activeFilters);
-    
-    // Update URL with search params
+
     const params = new URLSearchParams();
     Object.entries(activeFilters).forEach(([key, value]) => {
       params.set(key, value.toString());
     });
-    
-    const newUrl = `/animals${params.toString() ? `?${params.toString()}` : ''}`;
-    router.push(newUrl);
+
+    router.push(`/animals${params.toString() ? `?${params.toString()}` : ''}`);
   };
-  
-  const clearFilters = () => {
-    setFilters({
-      species: '',
-      gender: '',
-      age_max: '',
-      health_status: '',
-      location: '',
-      search: '',
-    });
-    
-    onSearch({});
-    router.push('/animals');
-  };
-  
+
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-      <h2 className="text-lg font-semibold mb-4">Search Animals</h2>
-      
-      <form onSubmit={handleSubmit}>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Search
-            </label>
-            <input
-              type="text"
-              name="search"
-              placeholder="Name, breed, etc."
-              value={filters.search}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Species
-              </label>
-              <select
+      <section className="bg-[#FDF5EB] py-10 text-[#432907]">
+        <form onSubmit={handleSubmit} className="max-w-5xl mx-auto px-4 flex flex-col items-center gap-4">
+          <div className="flex flex-wrap justify-center gap-3 w-full">
+            <Dropdown
                 name="species"
                 value={filters.species}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">All Types</option>
-                <option value="dog">Dogs</option>
-                <option value="cat">Cats</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Gender
-              </label>
-              <select
+                onChange={(value) => handleDropdownChange('species', value)}
+                options={speciesOptions}
+                placeholder="Ким"
+            />
+            <Dropdown
                 name="gender"
                 value={filters.gender}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">Any Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Max Age (Years)
-              </label>
-              <select
+                onChange={(value) => handleDropdownChange('gender', value)}
+                options={genderOptions}
+                placeholder="Стать"
+            />
+            <Dropdown
                 name="age_max"
                 value={filters.age_max}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">Any Age</option>
-                <option value="1">Up to 1 year</option>
-                <option value="3">Up to 3 years</option>
-                <option value="5">Up to 5 years</option>
-                <option value="10">Up to 10 years</option>
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Health Status
-              </label>
-              <select
+                onChange={(value) => handleDropdownChange('age_max', value)}
+                options={ageOptions}
+                placeholder="Вік"
+            />
+            <Dropdown
                 name="health_status"
                 value={filters.health_status}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">Any Status</option>
-                <option value="healthy">Healthy</option>
-                <option value="needs_care">Needs Care</option>
-                <option value="urgent">Urgent Care Needed</option>
-              </select>
-            </div>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Location
-            </label>
+                onChange={(value) => handleDropdownChange('health_status', value)}
+                options={healthOptions}
+                placeholder="Стан здоров’я"
+            />
             <input
-              type="text"
-              name="location"
-              placeholder="City, region, etc."
-              value={filters.location}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                type="text"
+                name="location"
+                placeholder="Локація"
+                value={filters.location}
+                onChange={handleInputChange}
+                className="px-4 py-2 rounded-full bg-[#DDE3EF] font-bold text-sm text-[#432907] placeholder:text-[#888] shadow-sm focus:outline-none"
             />
           </div>
-          
-          <div className="flex justify-between pt-2">
+
+          <div className="py-6 text-sm text-[#432907]">
+            Або скористайтеся пошуком :)
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:justify-center items-center">
+            <input
+                type="text"
+                name="search"
+                placeholder="Введіть тут …"
+                value={filters.search}
+                onChange={handleInputChange}
+                className="w-3/4 sm:w-[600px] px-4 py-2 rounded-full bg-[#DDE3EF] text-[#432907] font-medium placeholder:text-[#aaa] focus:outline-none"
+            />
             <button
-              type="button"
-              onClick={clearFilters}
-              className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                type="submit"
+                className="px-6 py-2 rounded-full bg-[#88A7DC] text-white font-bold text-sm hover:bg-[#6c8bc6] transition"
             >
-              Clear Filters
-            </button>
-            
-            <button
-              type="submit"
-              className="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-            >
-              Search
+              ЗНАЙТИ
             </button>
           </div>
-        </div>
-      </form>
-    </div>
+        </form>
+      </section>
   );
 }

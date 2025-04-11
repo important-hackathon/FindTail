@@ -1,7 +1,40 @@
+'use client';
+
 import Image from 'next/image';
 import Dropdown from '@/components/ui/Dropdown';
+import { useState } from 'react';
 
 export default function Find() {
+    const [filters, setFilters] = useState({
+        species: '',
+        age: '',
+        health: '',
+        location: '',
+    });
+
+    const handleChange = (key: string, value: string) => {
+        setFilters((prev) => ({ ...prev, [key]: value }));
+    };
+
+    const speciesOptions = [
+        { label: 'Кіт', value: 'cat' },
+        { label: 'Собака', value: 'dog' },
+        { label: 'Інше', value: 'other' },
+    ];
+
+    const ageOptions = [
+        { label: 'До 1 року', value: '1' },
+        { label: '1-3 роки', value: '1-3' },
+        { label: '3+ років', value: '3+' },
+    ];
+
+    const healthOptions = [
+        { label: 'Здоровий', value: 'healthy' },
+        { label: 'Потребує лікування', value: 'needs_care' },
+    ];
+
+    const locationOptions = [{ label: 'Львів', value: 'lviv' }];
+
     return (
         <section className="relative bg-[#E4EAF1] overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 py-24 relative flex flex-col lg:flex-row items-center gap-16">
@@ -25,19 +58,59 @@ export default function Find() {
                 </div>
 
                 <div className="lg:w-1/2 text-center lg:text-left text-[#432907] z-20">
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-4">Знайди собі друга!</h2>
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-4">
+                        Знайди собі друга!
+                    </h2>
                     <p className="text-base sm:text-lg mb-6">
                         Після початку повномасштабної війни тисячі тварин залишились без домівок. Ми створили платформу, щоб дати кожній тварині шанс на нове життя.
                     </p>
 
                     <div className="space-y-4">
                         <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
-                            <Dropdown label="Вид тварини" items={['Кіт', 'Собака', 'Інше']} />
-                            <Dropdown label="Вік" items={['До 1 року', '1-3 роки', '3+ років']} />
-                            <Dropdown label="Стан здоров’я" items={['Здоровий', 'Потребує лікування']} />
-                            <Dropdown label="Локація" items={['Львів']} />
+                            <Dropdown
+                                name="species"
+                                value={filters.species}
+                                onChange={(val) => handleChange('species', val)}
+                                options={speciesOptions}
+                                placeholder="Вид тварини"
+                                bgColor="#FDF5EB"
+                                textColor="#432907"
+                                hoverColor="#E6DBCB"
+                            />
+                            <Dropdown
+                                name="age"
+                                value={filters.age}
+                                onChange={(val) => handleChange('age', val)}
+                                options={ageOptions}
+                                placeholder="Вік"
+                                bgColor="#FDF5EB"
+                                textColor="#432907"
+                                hoverColor="#E6DBCB"
+                            />
+                            <Dropdown
+                                name="health"
+                                value={filters.health}
+                                onChange={(val) => handleChange('health', val)}
+                                options={healthOptions}
+                                placeholder="Стан здоров’я"
+                                bgColor="#FDF5EB"
+                                textColor="#432907"
+                                hoverColor="#E6DBCB"
+                            />
+                            <Dropdown
+                                name="location"
+                                value={filters.location}
+                                onChange={(val) => handleChange('location', val)}
+                                options={locationOptions}
+                                placeholder="Локація"
+                                bgColor="#FDF5EB"
+                                textColor="#432907"
+                                hoverColor="#E6DBCB"
+                            />
                         </div>
+
                         <p className="text-sm text-[#432907]/80">Або скористайтеся пошуком :)</p>
+
                         <div className="flex flex-col sm:flex-row gap-2 max-w-full mx-auto lg:mx-0">
                             <input
                                 type="text"

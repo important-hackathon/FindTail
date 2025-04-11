@@ -222,7 +222,7 @@ export default function AnimalDetailPage() {
         </Link>
       </div>
       
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="rounded-lg shadow-md overflow-hidden">
         <div className="md:flex">
           {/* Image Gallery */}
           <div className="md:w-1/2">
