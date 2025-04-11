@@ -109,9 +109,9 @@ export default function Find() {
                             />
                         </div>
 
-                        <p className="text-sm text-[#432907]/80">Або скористайтеся пошуком :)</p>
+                        <p className="text-sm text-[#432907]/80 text-end">Або скористайтеся пошуком :)</p>
 
-                        <div className="flex flex-col sm:flex-row gap-2 max-w-full mx-auto lg:mx-0">
+                        <div className="flex flex-col sm:flex-row gap-2 w-3/4 sm:w-full mx-auto lg:mx-0">
                             <input
                                 type="text"
                                 placeholder="Введіть тут ..."

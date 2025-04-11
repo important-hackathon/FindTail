@@ -5,14 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4cde9711-1c11-4e84-834f-c208e4923e0f" name="Changes" comment="refactor: update search page &amp; custom dropdown">
-      <change afterPath="$PROJECT_DIR$/public/assets/images/pet-ears.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/animals/[id]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/animals/[id]/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/animals/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/animals/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/layout.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/home/Find.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/home/Find.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/search/AnimalSearch.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/search/AnimalSearch.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ui/Dropdown.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/Dropdown.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/constants/navigation.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/constants/navigation.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,7 +84,7 @@
       <updated>1744361467562</updated>
       <workItem from="1744361468633" duration="2556000" />
       <workItem from="1744391586450" duration="564000" />
-      <workItem from="1744392362464" duration="12108000" />
+      <workItem from="1744392362464" duration="12414000" />
     </task>
     <task id="LOCAL-00001" summary="feat: add burger menu for mobile devices">
       <option name="closed" value="true" />
