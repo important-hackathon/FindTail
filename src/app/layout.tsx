@@ -3,8 +3,14 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Header from "@/components/layout/Header";
-
 const inter = Inter({ subsets: ["latin"] });
+import { Montserrat_Alternates } from 'next/font/google';
+
+const montserrat = Montserrat_Alternates({
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['400', '500', '600', '700'],
+});
 
 export const metadata: Metadata = {
   title: "Pet Rescue Platform",
@@ -12,8 +18,8 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  children,
-}: {
+                                     children,
+                                   }: {
   children: React.ReactNode;
 }) {
   return (
@@ -26,6 +32,6 @@ export default function RootLayout({
           </div>
         </AuthProvider>
       </body>
-    </html>
+      </html>
   );
 }
