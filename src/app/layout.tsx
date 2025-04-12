@@ -16,9 +16,9 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-                                       children,
-                                   }: {
-    children: React.ReactNode;
+  children,
+}: {
+  children: React.ReactNode;
 }) {
     return (
         <html lang="en">
@@ -31,7 +31,8 @@ export default function RootLayout({
                 </main>
             </div>
         </AuthProvider>
-        </body>
-        </html>
-    );
+      </body>
+    </html>
+  );
 }
+
