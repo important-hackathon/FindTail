@@ -74,8 +74,10 @@ export default function SheltersPage() {
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20">
-      <h1 className="text-3xl font-bold mb-6">Animal Shelters</h1>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 ">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6">
+        Притулки для тварин
+      </h1>
 
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
         <div className="flex flex-col sm:flex-row gap-4">
@@ -104,15 +106,15 @@ export default function SheltersPage() {
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <p>Loading shelters...</p>
+          <p>Завантаження притулків</p>
         </div>
       ) : filteredShelters.length === 0 ? (
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
           <h2 className="text-xl font-semibold text-gray-800 mb-2">
-            No shelters found
+            Жодного притулку не знайдно.
           </h2>
           <p className="text-gray-600">
-            Try adjusting your search filters or check back later.
+            Спробуйте налаштувати фільтри пошуку або перевірте пізніше.
           </p>
         </div>
       ) : (
