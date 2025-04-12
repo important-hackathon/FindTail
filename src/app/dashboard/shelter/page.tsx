@@ -1,10 +1,21 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
+import { fixMissingShelterDetails } from '@/lib/helpers';
+import { useEffect } from 'react';
 
 export default function ShelterDashboard() {
   const { profile, signOut } = useAuth();
-  const shelterDetails = profile?.shelter_details;
+  // const shelterDetails = profile?.shelter_details;
+  // console.log('Dashboard profile data:', profile);
+  const shelterName = profile?.shelter_details?.shelter_name || profile?.full_name || 'Your Shelter';
+  const shelterType = profile?.shelter_details?.shelter_type?.replace('_', ' ') || 'Animal Shelter';
+  const location = profile?.shelter_details?.location || profile?.address || 'Unknown Location';
+
+  useEffect(() => {
+    // Run the fix when dashboard loads
+    fixMissingShelterDetails();
+  }, []);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -19,9 +30,9 @@ export default function ShelterDashboard() {
       </div>
 
       <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4">Welcome, {shelterDetails?.shelter_name}</h2>
-        <p className="text-gray-600">Type: {shelterDetails?.shelter_type?.replace('_', ' ')}</p>
-        <p className="text-gray-600">Location: {shelterDetails?.location}</p>
+        <h2 className="text-xl font-semibold mb-4">Вітаю, {shelterName}</h2>
+        <p className="text-gray-600">Тип: {shelterType}</p>
+        <p className="text-gray-600">Місцезнаходження: {location}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
