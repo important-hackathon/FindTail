@@ -6,7 +6,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     return (
         <>
             <Header />
-            <DashboardNav />
+            {/* <DashboardNav /> */}
             <main>{children}</main>
         </>
     );
