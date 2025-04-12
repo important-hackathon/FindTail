@@ -11,7 +11,7 @@ const montserrat = Montserrat_Alternates({
 });
 
 export const metadata: Metadata = {
-    title: 'Pet Rescue Platform',
+    title: 'FindTail',
     description: 'Connecting animal shelters with people who want to help',
 };
 
