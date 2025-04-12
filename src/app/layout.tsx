@@ -1,14 +1,18 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { AuthProvider } from "@/contexts/AuthContext";
-import Header from "@/components/layout/Header";
+import type { Metadata } from 'next';
+import { Montserrat_Alternates } from 'next/font/google';
+import './globals.css';
+import { AuthProvider } from '@/contexts/AuthContext';
+import Header from '@/components/layout/Header';
 
-const inter = Inter({ subsets: ["latin"] });
+const montserrat = Montserrat_Alternates({
+    subsets: ['latin'],
+    display: 'swap',
+    weight: ['400', '500', '600', '700'],
+});
 
 export const metadata: Metadata = {
-  title: "Pet Rescue Platform",
-  description: "Connecting animal shelters with people who want to help",
+    title: 'FindTail',
+    description: 'Connecting animal shelters with people who want to help',
 };
 
 export default function RootLayout({
@@ -16,16 +20,19 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <html lang="en">
-      <body className={inter.className}>
+    return (
+        <html lang="en">
+        <body className={montserrat.className}>
         <AuthProvider>
-          <div className="min-h-screen bg-gray-50 flex flex-col">
-            <Header />
-            <main className="flex-grow">{children}</main>
-          </div>
+            <div className="min-h-screen bg-gray-50 flex flex-col">
+                <Header />
+                <main className="flex-grow mt-16">
+                    {children}
+                </main>
+            </div>
         </AuthProvider>
       </body>
     </html>
   );
 }
+
