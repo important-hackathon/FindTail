@@ -1,43 +1,90 @@
 'use client';
 
-import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { IoIosArrowDown } from 'react-icons/io';
 
-interface DropdownProps {
+interface Option {
+    value: string;
     label: string;
-    items: string[];
 }
 
-export default function Dropdown({ label, items }: DropdownProps) {
+interface DropdownProps {
+    name: string;
+    value: string;
+    onChange: (value: string) => void;
+    options: Option[];
+    placeholder?: string;
+
+    bgColor?: string;
+    textColor?: string;
+    hoverColor?: string;
+}
+
+export default function Dropdown({
+                                     name,
+                                     value,
+                                     onChange,
+                                     options = [],
+                                     placeholder = 'Оберіть...',
+                                     bgColor = '#DDE3EF',
+                                     textColor = '#432907',
+                                     hoverColor = '#e6dfd0',
+                                 }: DropdownProps) {
     const [isOpen, setIsOpen] = useState(false);
-    const [selected, setSelected] = useState<string | null>(null);
+    const ref = useRef<HTMLDivElement>(null);
 
-    const toggleDropdown = () => setIsOpen(!isOpen);
+    const selected = options.find((opt) => opt.value === value);
 
-    const handleSelect = (item: string) => {
-        setSelected(item);
+    const handleSelect = (option: Option) => {
+        onChange(option.value);
         setIsOpen(false);
     };
 
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (ref.current && !ref.current.contains(e.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
     return (
-        <div className="relative">
+        <div ref={ref} className="relative">
             <button
-                onClick={toggleDropdown}
-                className="bg-[#FDF5EB] text-[#432907] px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 min-w-[120px] shadow-sm border border-transparent hover:border-[#e0d7cb] transition"
+                type="button"
+                onClick={() => setIsOpen(!isOpen)}
+                style={{ backgroundColor: bgColor, color: textColor }}
+                className="px-4 py-2 rounded-full font-bold text-sm shadow-sm flex items-center gap-2 min-w-[120px]"
             >
-                {selected || label}
-                <ChevronDown size={16} className={` transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                {selected?.label || placeholder}
+                <IoIosArrowDown className="text-xs" />
             </button>
 
             {isOpen && (
-                <ul className="absolute left-0 mt-2 w-full bg-[#FDF5EB] text-[#432907] rounded-[10px] py-2 shadow-md z-50">
-                    {items.map((item, index) => (
+                <ul
+                    className="absolute left-0 mt-0.5 w-full border border-gray-200 rounded-xl shadow-md z-50"
+                    style={{ backgroundColor: bgColor }}
+                >
+                    {options.map((option) => (
                         <li
-                            key={index}
-                            className="px-4 py-1.5 text-sm hover:bg-[#f1e8da] cursor-pointer"
-                            onClick={() => handleSelect(item)}
+                            key={option.value}
+                            onClick={() => handleSelect(option)}
+                            className="px-4 py-2 cursor-pointer text-sm transition"
+                            style={{
+                                color: textColor,
+                                backgroundColor: value === option.value ? hoverColor : 'transparent',
+                                fontWeight: value === option.value ? 600 : 400,
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = hoverColor)}
+                            onMouseLeave={(e) =>
+                                (e.currentTarget.style.backgroundColor =
+                                    value === option.value ? hoverColor : 'transparent')
+                            }
                         >
-                            {item}
+                            {option.label}
                         </li>
                     ))}
                 </ul>

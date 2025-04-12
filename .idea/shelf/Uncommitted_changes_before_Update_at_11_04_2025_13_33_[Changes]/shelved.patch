@@ -1,0 +1,12 @@
+Index:  .env.local
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ .env.local b/ .env.local
+new file mode 100644
+--- /dev/null	(date 1744361701958)
++++ b/ .env.local	(date 1744361701958)
+@@ -0,0 +1,2 @@
++NEXT_PUBLIC_SUPABASE_URL=https://sgdsxkaekrcmgabmiigx.supabase.co
++NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnZHN4a2Fla3JjbWdhYm1paWd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQzMDYzMDEsImV4cCI6MjA1OTg4MjMwMX0.SO2gMVi3x1ShLh-iA3hWaku_iIuYUNs_quA5h7AWNqo

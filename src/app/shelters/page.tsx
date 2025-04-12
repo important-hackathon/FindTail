@@ -1,18 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase/client";
-import ShelterCard from "@/components/shelters/ShelterCard";
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase/client';
+import ShelterCard from '@/components/shelters/ShelterCard';
+import { fixMissingShelterDetails } from '@/lib/helpers';
 import SearchShelters from "@/components/shelters/SearchShelters";
 import ShelterSelect from "@/components/shelters/ShelterSelect";
 import { shelterTypeOptions } from "@/constants/shelterTypeOptions";
+
 
 export default function SheltersPage() {
   const [shelters, setShelters] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [shelterType, setShelterType] = useState<string>("");
+  const [filterType, setFilterType] = useState<string>("");
 
   useEffect(() => {
     fetchShelters();
@@ -23,6 +25,9 @@ export default function SheltersPage() {
       setLoading(true);
       setError(null);
 
+      // Fetch missing shelters
+      await fixMissingShelterDetails();
+      
       // Get all shelters with animal count
       const { data, error } = await supabase
         .from("profiles")
@@ -31,12 +36,11 @@ export default function SheltersPage() {
           *,
           shelter_details(*),
           animals!inner(count)
-        `
-        )
-        .eq("user_type", "shelter")
-        .eq("animals.is_adopted", false)
-        .order("shelter_details(shelter_name)");
-
+        `)
+        .eq('user_type', 'shelter')
+        .eq('animals.is_adopted', false)
+        .order('created_at', { ascending: false });
+        
       if (error) throw error;
 
       // Process the data to include animal count
@@ -56,19 +60,16 @@ export default function SheltersPage() {
   };
 
   // Filter shelters based on search query and filter type
-  const filteredShelters = shelters.filter((shelter) => {
-    const nameMatch = shelter.shelter_details?.shelter_name
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-
-    const locationMatch =
-      shelter &&
-      shelter.shelter_details?.location
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-
-    const typeMatch =
-      !shelterType || shelter.shelter_details?.shelter_type === shelterType;
+  const filteredShelters = shelters.filter(shelter => {
+    // Перевірка на наявність shelter_details перед доступом до властивостей
+    const shelterName = shelter.shelter_details?.shelter_name || '';
+    const shelterLocation = shelter.shelter_details?.location || '';
+    const shelterType = shelter.shelter_details?.shelter_type || '';
+    
+    const nameMatch = shelterName.toLowerCase().includes(searchQuery.toLowerCase());
+    const locationMatch = shelterLocation.toLowerCase().includes(searchQuery.toLowerCase());
+    const typeMatch = !filterType || shelterType === filterType;
+    
 
     return (nameMatch || locationMatch) && typeMatch;
   });
@@ -90,8 +91,8 @@ export default function SheltersPage() {
           <div className="sm:w-64">
             <ShelterSelect
               label="Тип притулку"
-              shelterType={shelterType}
-              setShelterType={setShelterType}
+              shelterType={filterType}
+              setShelterType={setFilterType}
               items={shelterTypeOptions}
             />
           </div>

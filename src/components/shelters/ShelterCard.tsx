@@ -6,51 +6,58 @@ interface ShelterCardProps {
 }
 
 export default function ShelterCard({ shelter }: ShelterCardProps) {
-  const shelterTypeLabel =
-    shelterTypeOptions.find(
+
+  // Отримання безпечних значень з перевіркою на null/undefined
+  const shelterName = shelter.shelter_details?.shelter_name || 'Невідомий притулок';
+  const shelterType = shelterTypeOptions.find(
       (shelterOption) =>
-        shelterOption.value === shelter.shelter_details.shelter_type
-    ) || shelter.shelter_details.shelter_type;
+        shelterOption.value === shelter.shelter_details?.shelter_type
+    ) || shelter.shelter_details.shelter_type.replace('_', ' ');
+  const shelterLocation = shelter.shelter_details?.location || 'Невідоме розташування';
+  const shelterWebsite = shelter.shelter_details?.website || '';
+  const shelterDescription = shelter.shelter_details?.description || 'Опису не надано';
+  const animalsCount = shelter.animals_count || 0;
+
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-full">
       <div className="p-6 flex flex-col flex-grow">
         <h3 className="text-xl font-semibold text-gray-800 mb-2">
-          {shelter.shelter_details.shelter_name}
+          {shelterName}
         </h3>
 
         <div className="text-sm text-gray-600 mb-4">
           <p className="mb-1">
             <span className="font-medium">Тип:</span>{" "}
-            {shelterTypeLabel?.label || shelterTypeLabel}
+            {shelterType?.label || shelterType}
           </p>
           <p className="mb-1">
             <span className="font-medium">Розташування:</span>{" "}
-            {shelter.shelter_details.location}
+            {shelterLocation}
           </p>
-          {shelter.shelter_details.website && (
+          {shelterWebsite && (
             <p className="mb-1">
               <span className="font-medium">Вебсайт:</span>{" "}
               <a
-                href={shelter.shelter_details.website}
+                href={shelterWebsite}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:underline"
               >
-                {shelter.shelter_details.website.replace(/^https?:\/\//, "")}
+                {shelterWebsite.replace(/^https?:\/\//, "")}
               </a>
             </p>
           )}
         </div>
 
         <div className="text-sm text-gray-600 mb-4 line-clamp-3">
-          {shelter.shelter_details.description || "Опису не надано"}
+          {shelterDescription}
         </div>
 
         <div className="flex justify-between items-start flex-col sm:flex-row sm:items-center mt-auto">
           <span className="text-sm text-gray-500 mb-2 sm:mb-0">
-            {shelter.animals_count || 0}{" "}
-            {shelter.animals_count === 1
+            {animalsCount || 0}{" "}
+            {animalsCount === 1
               ? "тварина доступна"
               : "доступних тварин"}
           </span>
