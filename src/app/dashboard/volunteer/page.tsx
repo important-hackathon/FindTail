@@ -1,8 +1,9 @@
-"use client";
+'use client';
 
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import Link from "next/link";
-import { usePathname } from 'next/navigation';
 import { 
   Search, 
   Heart, 
@@ -18,17 +19,33 @@ import {
 } from 'lucide-react';
 
 export default function VolunteerDashboard() {
-  const { profile, signOut } = useAuth();
-  const pathname = usePathname();
+  const { user, profile, signOut, loading } = useAuth();
+  const router = useRouter();
 
-  const isActive = (href: string) => pathname.startsWith(href);
+  // Add protection - redirect if not authenticated or not a volunteer
+  useEffect(() => {
+    if (!loading) {
+      if (!user) {
+        console.log("No user found, redirecting to login");
+        router.push('/auth/login');
+      } else if (!profile || profile.user_type !== 'volunteer') {
+        console.log("Not a volunteer profile, redirecting");
+        router.push('/dashboard');
+      }
+    }
+  }, [user, profile, loading, router]);
 
-  const navLinks = [
-    { name: 'Головна', href: '/dashboard/volunteer' },
-    { name: 'Улюблені', href: '/dashboard/volunteer/favorites' },
-    { name: 'Знайдена тварина', href: '/dashboard/volunteer/found' },
-    { name: 'Повідомлення', href: '/dashboard/messages' },
-  ];
+  // Don't render anything while loading or if not authenticated correctly
+  if (loading || !user || !profile || profile.user_type !== 'volunteer') {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-t-blue-500 border-blue-200 mb-4"></div>
+          <p className="text-gray-600">Перевірка авторизації...</p>
+        </div>
+      </div>
+    );
+  }
 
   const actionCards = [
     {
@@ -122,26 +139,13 @@ export default function VolunteerDashboard() {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-[#432907]">
-                  {profile?.full_name || 'Волонтер'}
+                  {profile.full_name || 'Волонтер'}
                 </h1>
                 <p className="text-gray-500 text-sm">Волонтер</p>
               </div>
             </div>
             
             <div className="flex flex-wrap gap-3">
-              {/* {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  className={`px-4 py-2 text-sm rounded-full transition-colors ${
-                    isActive(link.href)
-                      ? 'bg-[#A9BFF2] text-white'
-                      : 'bg-gray-100 text-[#432907] hover:bg-gray-200'
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              ))} */}
               <button
                 onClick={signOut}
                 className="px-4 py-2 text-sm rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors flex items-center gap-1"

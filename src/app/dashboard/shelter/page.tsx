@@ -1,11 +1,10 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { fixMissingShelterDetails } from '@/lib/helpers';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import Link from "next/link";
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
   PawPrint, 
   Search, 
@@ -17,15 +16,41 @@ import {
 } from 'lucide-react';
 
 export default function ShelterDashboard() {
-  const { profile, signOut } = useAuth();
   const [pendingFoundPets, setPendingFoundPets] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loadingData, setLoadingData] = useState(true); // Renamed from loading to avoid conflict
   const pathname = usePathname();
+  const { user, profile, signOut, loading: authLoading } = useAuth(); // Renamed to authLoading
+  const router = useRouter();
 
-  // Get shelter details or fallback
-  const shelterName = profile?.shelter_details?.shelter_name || profile?.full_name || 'Your Shelter';
-  const shelterType = profile?.shelter_details?.shelter_type?.replace('_', ' ') || 'Animal Shelter';
-  const location = profile?.shelter_details?.location || profile?.address || 'Unknown Location';
+  // Add protection - redirect if not authenticated or not a shelter
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user) {
+        console.log("No user found, redirecting to login");
+        router.push('/auth/login');
+      } else if (!profile || profile.user_type !== 'shelter') {
+        console.log("Not a shelter profile, redirecting");
+        router.push('/dashboard');
+      }
+    }
+  }, [user, profile, authLoading, router]);
+
+  // Don't render anything while loading or if not authenticated correctly
+  if (authLoading || !user || !profile || profile.user_type !== 'shelter') {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-t-blue-500 border-blue-200 mb-4"></div>
+          <p className="text-gray-600">Перевірка авторизації...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Get shelter details or fallback (now we know profile exists)
+  const shelterName = profile.shelter_details?.shelter_name || profile.full_name || 'Your Shelter';
+  const shelterType = profile.shelter_details?.shelter_type?.replace('_', ' ') || 'Animal Shelter';
+  const location = profile.shelter_details?.location || profile.address || 'Unknown Location';
   
   const isActive = (href: string) => pathname.startsWith(href);
 
@@ -37,9 +62,6 @@ export default function ShelterDashboard() {
   ];
 
   useEffect(() => {
-    // Run the fix when dashboard loads
-    // fixMissingShelterDetails();
-    
     // Count pending found pet reports
     const countPendingReports = async () => {
       try {
@@ -57,7 +79,7 @@ export default function ShelterDashboard() {
       } catch (err) {
         console.error('Error counting pending reports:', err);
       } finally {
-        setLoading(false);
+        setLoadingData(false);
       }
     };
     
