@@ -19,14 +19,14 @@ export default function Header() {
     };
 
     return (
-        <header className="absolute top-0 left-0 w-full bg-[#FDF5EB] py-4 px-6">
+        <header className="fixed top-0 left-0 w-full bg-[#FDF5EB] py-5 px-6 shadow-md z-50">
             <div className="max-w-7xl mx-auto flex justify-between items-center">
                 <div className="z-50">
                     <Link href="/">
                         <Image
                             src="/assets/images/findtail-logo.svg"
                             alt="FindTail Logo"
-                            width={100}
+                            width={128}
                             height={40}
                         />
                     </Link>
