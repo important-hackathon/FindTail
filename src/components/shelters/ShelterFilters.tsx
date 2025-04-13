@@ -3,6 +3,7 @@ import Filter from "./Filter";
 import { ChangeEvent } from "react";
 import { ratingOptions } from "@/constants/shelterRating";
 import { shelterStatusOptions } from "@/constants/shelterStatusOptions";
+import { cities } from "@/constants/cities";
 
 interface ShelterFiltersProps {
   value: {
@@ -39,10 +40,7 @@ const ShelterFilters = ({ value, handleChange }: ShelterFiltersProps) => {
         </Filter>
 
         <Filter
-          items={[
-            { value: "Львів", label: "Львів" },
-            { value: "Киїів", label: "Киїів" },
-          ]}
+          items={cities}
           name="location"
           value={value.location}
           handleChange={handleChange}

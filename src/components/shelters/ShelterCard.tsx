@@ -97,7 +97,7 @@ export default function ShelterCard({ shelter }: ShelterCardProps) {
 
             <Link
               href={`/shelters/${shelter.id}`}
-              className="self-start sm:self-end mt-auto uppercase rounded-full bg-[#88A7D5] py-2 px-8 text-white font-bold cursor-pointer"
+              className="self-start sm:self-end mt-auto uppercase rounded-full  bg-[#88A7D5] hover:bg-[#5c7497] py-2 px-8 text-white font-bold cursor-pointer transition duration-200 hover:scale-105"
             >
               Переглянути
             </Link>

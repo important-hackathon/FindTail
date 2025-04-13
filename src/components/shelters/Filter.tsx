@@ -22,7 +22,7 @@ const Filter = ({
         name={name}
         value={value}
         onChange={handleChange}
-        className="w-full px-3 appearance-none py-2 border bg-[#D7DDE7] border-gray-300 rounded-full focus:outline-none focus:ring-blue-500 focus:border-blue-500 font-bold truncate "
+        className="w-full px-3 appearance-none py-2 border bg-[#D7DDE7] border-gray-300 rounded-full focus:outline-none focus:ring-blue-500 focus:border-blue-500 font-bold truncate cursor-pointer"
       >
         {children}
         {items.map((item) => (

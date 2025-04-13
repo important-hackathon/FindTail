@@ -135,10 +135,11 @@ export default function SheltersPage() {
 
   // Filter shelters based on search query and filter type
   const filteredShelters = shelters.filter((shelter) => {
-    // Check for shelter_details before accessing properties
-    const shelterName = shelter.shelter_details?.shelter_name || "";
-    const shelterLocation = shelter.shelter_details?.location || "";
-    const shelterType = shelter.shelter_details?.shelter_type || "";
+    const details = shelter.shelter_details || {};
+    const shelterName = details.shelter_name || "";
+    const shelterLocation = details.location || "";
+    const shelterType = details.shelter_type || "";
+    const shelterRating = details.rating ?? null;
 
     const nameMatch = shelterName
       .toLowerCase()
@@ -149,7 +150,19 @@ export default function SheltersPage() {
     const typeMatch =
       !formData.shelter_type || shelterType === formData.shelter_type;
 
-    return (nameMatch || locationMatch) && typeMatch;
+    const ratingMatch =
+      !formData.rating || shelterRating >= Number(formData.rating); // ✅ casting to number
+
+    const locationFilterMatch =
+      !formData.location ||
+      shelterLocation.toLowerCase().includes(formData.location.toLowerCase());
+
+    return (
+      (nameMatch || locationMatch) &&
+      typeMatch &&
+      ratingMatch &&
+      locationFilterMatch
+    );
   });
 
   console.log("shelter: ", shelters);
@@ -190,7 +203,7 @@ export default function SheltersPage() {
               placeholder="Введіть запит тут..."
             />
 
-            <button className="bg-[#88A7D5] text-white py-2 px-5 uppercase rounded-full font-bold cursor-pointer">
+            <button className="bg-[#88A7D5] hover:bg-[#5c7497] text-white py-2 px-5 uppercase rounded-full font-bold cursor-pointer transition duration-200 hover:scale-105">
               Знайти
             </button>
           </div>
@@ -202,8 +215,11 @@ export default function SheltersPage() {
         )}
 
         {loading ? (
-          <div className="flex justify-center py-12">
-            <p>Завантаження притулків...</p>
+          <div className="flex flex-col items-center justify-center mt-20">
+            <div className="text-center">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-t-blue-500 border-blue-200 mb-4"></div>
+              <p className="text-gray-600">Завантаження</p>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-7 lg:grid-cols-9 gap-10 mt-8 md:mt-20">
