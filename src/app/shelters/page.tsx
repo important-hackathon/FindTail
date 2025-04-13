@@ -15,15 +15,19 @@ export default function SheltersPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filterType, setFilterType] = useState<string>("");
   const [initialized, setInitialized] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
-  // This useEffect will run once when the component mounts
+  // First, ensure component is hydrated
   useEffect(() => {
-    // Only fetch shelters if the component hasn't been initialized yet
-    if (!initialized) {
+    setHydrated(true);
+  }, []);
+
+  // Then fetch data once hydrated (and not already initialized)
+  useEffect(() => {
+    if (hydrated && !initialized) {
       fetchShelters();
-      setInitialized(true);
     }
-  }, [initialized]);
+  }, [hydrated, initialized]);
 
   const fetchShelters = async () => {
     try {
@@ -31,13 +35,13 @@ export default function SheltersPage() {
       setLoading(true);
       setError(null);
 
-      // First, fix missing shelter details
-      try {
-        await fixMissingShelterDetails();
-      } catch (fixError) {
-        console.error("Error fixing shelter details:", fixError);
-        // Continue with the fetch even if this fails
-      }
+      // Don't await fixMissingShelterDetails to prevent blocking the main fetch
+      // Instead, let it run in parallel
+      Promise.resolve().then(() => {
+        fixMissingShelterDetails().catch(e => 
+          console.error("Non-critical error fixing shelter details:", e)
+        );
+      });
       
       // Get all shelter profiles first
       const { data: profilesData, error: profilesError } = await supabase
@@ -53,6 +57,7 @@ export default function SheltersPage() {
       if (!profilesData || profilesData.length === 0) {
         setShelters([]);
         setLoading(false);
+        setInitialized(true);
         return;
       }
       
@@ -105,9 +110,11 @@ export default function SheltersPage() {
       
       console.log(`Successfully fetched ${sheltersWithDetails.length} shelters`);
       setShelters(sheltersWithDetails);
+      setInitialized(true);
     } catch (err: any) {
       console.error("Error fetching shelters:", err);
       setError("Failed to load shelters. Please try again.");
+      setInitialized(true);
     } finally {
       setLoading(false);
     }

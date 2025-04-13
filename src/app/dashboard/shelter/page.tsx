@@ -38,7 +38,7 @@ export default function ShelterDashboard() {
 
   useEffect(() => {
     // Run the fix when dashboard loads
-    fixMissingShelterDetails();
+    // fixMissingShelterDetails();
     
     // Count pending found pet reports
     const countPendingReports = async () => {

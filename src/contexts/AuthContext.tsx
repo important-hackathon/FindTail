@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           try {
             await fetchUserProfile(session.user.id);
             // Fix missing shelter details if needed
-            await fixMissingShelterDetails();
+            // await fixMissingShelterDetails();
             
           } catch (err) {
             console.error('Profile fetch error during auth change:', err);
