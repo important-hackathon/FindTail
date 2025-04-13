@@ -241,7 +241,7 @@ export default function ShelterDetailPage() {
 
         <div className="mt-20">
           <h2 className="text-center text-2xl sm:text-3xl text-[#432907] font-bold">
-            Недавно переглянуті
+            Тваринки
           </h2>
 
           <div className="mt-10">
