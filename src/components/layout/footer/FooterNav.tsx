@@ -5,7 +5,7 @@ export default function FooterNav() {
         <nav className="flex flex-wrap justify-center gap-8 p-6 text-center uppercase tracking-wide">
             <Link href="/">Головна</Link>
             <Link href="/animals">Пошук</Link>
-            <Link href="/catalog">Каталог</Link>
+            <Link href="/shelters">Притулки</Link>
             <Link href="/contacts">Контакти</Link>
             <Link href="/dashboard">Кабінет</Link>
         </nav>

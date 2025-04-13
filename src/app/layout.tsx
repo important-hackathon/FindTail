@@ -11,7 +11,7 @@ const montserrat = Montserrat_Alternates({
 });
 
 export const metadata: Metadata = {
-    title: 'Pet Rescue Platform',
+    title: 'FindTail',
     description: 'Connecting animal shelters with people who want to help',
 };
 
@@ -26,7 +26,7 @@ export default function RootLayout({
         <AuthProvider>
             <div className="min-h-screen bg-gray-50 flex flex-col">
                 <Header />
-                <main className="flex-grow mt-12">
+                <main className="flex-grow mt-16">
                     {children}
                 </main>
             </div>
