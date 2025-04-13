@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Dropdown from '@/components/ui/Dropdown';
 
@@ -38,13 +38,27 @@ export default function AnimalSearch({ onSearch, initialFilters = {} }: AnimalSe
   const searchParams = useSearchParams();
 
   const [filters, setFilters] = useState({
-    species: initialFilters.species || searchParams.get('species') || '',
-    gender: initialFilters.gender || searchParams.get('gender') || '',
-    age_max: initialFilters.age_max || searchParams.get('age_max') || '',
-    health_status: initialFilters.health_status || searchParams.get('health_status') || '',
-    location: initialFilters.location || searchParams.get('location') || '',
-    search: initialFilters.search || searchParams.get('search') || '',
+    species: initialFilters.species || '',
+    gender: initialFilters.gender || '',
+    age_max: initialFilters.age_max || '',
+    health_status: initialFilters.health_status || '',
+    location: initialFilters.location || '',
+    search: initialFilters.search || '',
   });
+
+  // Update filters if searchParams or initialFilters change
+  useEffect(() => {
+    if (searchParams) {
+      setFilters({
+        species: initialFilters.species || searchParams.get('species') || '',
+        gender: initialFilters.gender || searchParams.get('gender') || '',
+        age_max: initialFilters.age_max || searchParams.get('age_max') || '',
+        health_status: initialFilters.health_status || searchParams.get('health_status') || '',
+        location: initialFilters.location || searchParams.get('location') || '',
+        search: initialFilters.search || searchParams.get('search') || '',
+      });
+    }
+  }, [searchParams, initialFilters]);
 
   const handleDropdownChange = (name: string, value: string) => {
     setFilters(prev => ({ ...prev, [name]: value }));
@@ -101,7 +115,7 @@ export default function AnimalSearch({ onSearch, initialFilters = {} }: AnimalSe
                 value={filters.health_status}
                 onChange={(value) => handleDropdownChange('health_status', value)}
                 options={healthOptions}
-                placeholder="Стан здоров’я"
+                placeholder="Стан здоров'я"
             />
             <input
                 type="text"

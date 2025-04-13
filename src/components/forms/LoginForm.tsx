@@ -1,21 +1,23 @@
 "use client";
 
 import { useState, FormEvent, ChangeEvent } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import RememberMe from "./RememberMe";
 import AuthButton from "./AuthButton";
 import TextInput from "./TextInput";
 
-export default function LoginForm() {
+interface LoginFormProps {
+  isRegistered?: boolean;
+}
+
+export default function LoginForm({ isRegistered = false }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const isRegistered = searchParams.get("registered") === "true";
   const { signIn, loading } = useAuth();
 
   const handleChangeRememberMe = (e: ChangeEvent<HTMLInputElement>) => {
