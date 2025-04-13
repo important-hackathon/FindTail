@@ -61,7 +61,7 @@ export default function EditAnimalPage() {
   if (authLoading || loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <p>Loading...</p>
+        <p>Завантаження...</p>
       </div>
     );
   }
@@ -76,7 +76,7 @@ export default function EditAnimalPage() {
           onClick={() => router.back()}
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
         >
-          Go Back
+          Назад
         </button>
       </div>
     );
@@ -84,7 +84,7 @@ export default function EditAnimalPage() {
   
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Edit Animal</h1>
+      {/* <h1 className="text-3xl font-bold mb-6">Edit Animal</h1> */}
       {animal && <AnimalForm editMode={true} animalData={animal} />}
     </div>
   );
