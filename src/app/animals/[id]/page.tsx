@@ -141,16 +141,32 @@ export default function AnimalDetailPage() {
   }
 
   return (
-      <div className="bg-[#FDF5EB] px-6 py-10 min-h-screen">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-10 border-[#A9BFF2] border-b pb-10">
+      <div className="bg-[#FDF5EB] px-6 py-10 min-h-screen relative overflow-hidden text-[#432907]">
+        <Image
+            src="/assets/images/line-wave-2.svg"
+            alt="line wave 2"
+            width={800}
+            height={300}
+            className="absolute right-0 bottom-120 z-0 pointer-events-none"
+        />
+        <Image
+            src="/assets/images/line-wave-3.svg"
+            alt="line wave 3"
+            width={700}
+            height={300}
+            className="absolute left-0 top-120 z-0 pointer-events-none"
+        />
+        <div
+            className="relative z-10 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-10 border-[#A9BFF2] border-b pb-10">
           <div>
-            <Link href="/animals" className="flex items-center justify-center gap-1 px-4 py-2 max-w-26 rounded-full text-sm font-semibold shadow mb-4 bg-[#D7DDE7] hover:bg-gray-700]">
-              <ArrowLeft size={16} /> Назад
+            <Link href="/animals"
+                  className="flex items-center justify-center gap-1 px-4 py-2 max-w-26 rounded-full text-sm font-semibold shadow mb-4 bg-[#D7DDE7] hover:bg-gray-700]">
+              <ArrowLeft size={16}/> Назад
             </Link>
-            <Gallery images={animal.images} />
+            <Gallery images={animal.images}/>
           </div>
 
-          <div className="flex flex-col justify-between text-[#432907]">
+          <div className="flex flex-col justify-between text-[#432907] z-10">
             <div>
               <div className="flex justify-between items-start gap-4 relative">
                 <h1 className="text-3xl font-bold">{animal.name}</h1>
@@ -166,7 +182,7 @@ export default function AnimalDetailPage() {
 
                 <div className="text-sm font-semibold text-right">
                   <div className="flex items-center justify-end gap-2 text-[#432907]">
-                    <span className='text-[#A9BFF2]'><MapPin size={16} /></span> {shelter?.shelter_details?.location}
+                    <span className='text-[#A9BFF2]'><MapPin size={16}/></span> {shelter?.shelter_details?.location}
                   </div>
                   <p>
                     Притулок: “{shelter?.shelter_details?.shelter_name}”
@@ -174,7 +190,7 @@ export default function AnimalDetailPage() {
                 </div>
               </div>
 
-              <div className="mt-4 text-sm space-y-1">
+              <div className="mt-4 text-sm space-y-1 z-10">
                 <p><b>Вік:</b> {formatAge()}</p>
                 <p><b>Стать:</b> {animal.gender}</p>
                 <p><b>Стерилізований:</b> {animal.sterilized ? 'Так' : 'Ні'}</p>
@@ -184,12 +200,12 @@ export default function AnimalDetailPage() {
                 <p><b>Вакцинація:</b> {animal.vaccinated ? 'Так' : 'Ні'}</p>
                 <p><b>Звик до туалету:</b> {animal.house_trained ? 'Так' : 'Ні'}</p>
                 <p className=''><b>Їсть:</b> {animal.food_preference || '—'}</p>
-                <p className="border-[#A9BFF2] border-y text-sm py-4 mt-2">{animal.description || 'Опис відсутній'}</p>
+                <p className="border-[#A9BFF2] border-y text-sm py-4 mt-2 z-10">{animal.description || 'Опис відсутній'}</p>
               </div>
 
             </div>
 
-            <div className="mt-6 pt-4 text-sm space-y-1">
+            <div className="mt-6 pt-4 text-sm space-y-1 z-10">
               <p><b>Контакт:</b> {shelter?.shelter_details?.phone || '—'}</p>
               <p><b>Email:</b> {shelter?.email}</p>
               <p><b>Instagram:</b> @{shelter?.shelter_details?.instagram}</p>
@@ -201,11 +217,11 @@ export default function AnimalDetailPage() {
                         isFavorite ? 'bg-red-100 text-red-600' : 'bg-[#D7DDE7] text-gray-600'
                     }`}
                 >
-                  {isFavorite ? '❤️ В улюблених' : '🤍 Додати в улюблені'}
+                  {isFavorite ? '❤️ В улюблених' : '🤍 Додати в обране'}
                 </button>
 
                 <button
-                    onClick={() => setContactForm({ ...contactForm, showForm: true })}
+                    onClick={() => setContactForm({...contactForm, showForm: true})}
                     className="bg-[#A9C5E2] hover:bg-[#90b4db] px-6 py-2 rounded-full text-sm font-semibold text-white shadow"
                 >
                   Хочу забрати!
@@ -215,12 +231,16 @@ export default function AnimalDetailPage() {
           </div>
         </div>
 
+        <div className="mt-4 text-xl font-bold z-10 text-center">
+          Схожі оголошення
+        </div>
+
         {contactForm.showForm && (
-            <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+            <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 z-10">
               <div className="bg-white max-w-md w-full rounded-xl p-6 shadow-lg">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-semibold">Повідомлення про {animal.name}</h3>
-                  <button onClick={() => setContactForm({ ...contactForm, showForm: false })}>
+                  <button onClick={() => setContactForm({...contactForm, showForm: false})}>
                     &times;
                   </button>
                 </div>
@@ -234,12 +254,12 @@ export default function AnimalDetailPage() {
                     rows={4}
                     required
                     value={contactForm.message}
-                    onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                    onChange={(e) => setContactForm({...contactForm, message: e.target.value})}
                     className="w-full border border-gray-300 rounded-md px-3 py-2"
                     placeholder="Ваше повідомлення..."
                 />
-                      <div className="flex justify-end gap-2">
-                        <button type="button" onClick={() => setContactForm({ ...contactForm, showForm: false })}>
+                      <div className="flex justify-end gap-2 z-10">
+                        <button type="button" onClick={() => setContactForm({...contactForm, showForm: false})}>
                           Скасувати
                         </button>
                         <button
