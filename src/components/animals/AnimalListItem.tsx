@@ -81,7 +81,7 @@ export default function AnimalListItem({
   const location = animal.shelter?.address || "Невідома локація";
 
   return (
-      <div className="flex flex-col sm:flex-row justify-between items-start gap-4 bg-[#F7EFE3] rounded-lg px-6 py-4 shadow-sm border border-[#DDD]">
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-2 bg-[#F7EFE3] rounded-lg px-6 py-4 shadow-sm border border-[#DDD]">
         <div className="flex-shrink-0 w-[110px] h-[110px] rounded-md overflow-hidden">
           <img
               src={imageUrl}
@@ -116,7 +116,7 @@ export default function AnimalListItem({
             {!isShelterView ? (
                 <Link
                     href={`/animals/${animal.id}`}
-                    className="text-sm px-4 py-1 rounded-full bg-[#B4B9EF] text-white font-semibold shadow hover:brightness-105 transition"
+                    className="text-sm px-4 py-1 rounded-full bg-[#A9BFF2] text-white font-semibold shadow hover:brightness-105 transition"
                 >
                   ХОЧУ ЗАБРАТИ!
                 </Link>

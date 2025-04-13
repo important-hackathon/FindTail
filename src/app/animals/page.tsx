@@ -169,11 +169,11 @@ export default function AnimalsPage() {
             <p>Спробуй змінити фільтри або пошукові параметри</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
-            {animals.map((animal) => (
-              <AnimalListItem key={animal.id} animal={animal}/>
-            ))}
-          </div>
+            <div className="flex flex-col gap-4 items-center">
+              {animals.map((animal) => (
+                  <AnimalListItem key={animal.id} animal={animal}/>
+              ))}
+            </div>
         )}
       </div>
     </div>
