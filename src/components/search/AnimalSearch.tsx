@@ -116,7 +116,7 @@ export default function AnimalSearch({ onSearch, initialFilters = {} }: AnimalSe
                 value={filters.species}
                 onChange={(value) => handleDropdownChange('species', value)}
                 options={speciesOptions}
-                placeholder="Ким"
+                placeholder="Вид тваринки"
             />
             <Dropdown
                 name="gender"

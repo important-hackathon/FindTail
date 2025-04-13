@@ -5,7 +5,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { useRouter } from 'next/navigation';
 import { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
 import { AuthService } from '@/lib/auth-service';
-import { supabase } from '@/lib/supabase/client'; // Add this import
+import { supabase } from '@/lib/supabase/client';
 
 interface ProfileData {
   fullName: string;
@@ -35,16 +35,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authInitialized, setAuthInitialized] = useState(false);
   const router = useRouter();
 
+  // Prevent race conditions by using a single initialization flow
   useEffect(() => {
-    // Check active session and load user data
+    if (authInitialized) return;
+
+    // Create a flag to prevent state updates after component unmount
+    let isMounted = true;
+
     const initializeAuth = async () => {
       try {
-        setLoading(true);
+        console.log('Initializing auth context...');
         
         // Check if authenticated
         const isAuthenticated = await AuthService.isAuthenticated();
+        console.log('Authentication check result:', isAuthenticated);
         
         if (isAuthenticated) {
           // Get current user
@@ -52,61 +59,83 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           
           if (userError || !currentUser) {
             console.error('Error getting current user:', userError);
-            setUser(null);
-            setProfile(null);
-            setLoading(false);
-            return;
-          }
-          
-          setUser(currentUser);
-          
-          // Get user profile
-          const { profile: userProfile, error: profileError } = await AuthService.getUserProfile(currentUser.id);
-          
-          if (profileError) {
-            console.error('Error getting user profile:', profileError);
-          } else if (!userProfile) {
-            // Create default profile if none exists
-            await AuthService.createProfile(
-              currentUser.id, 
-              'volunteer', // Default type 
-              { fullName: currentUser.email?.split('@')[0] || 'User' }
-            );
-            
-            // Fetch the newly created profile
-            const { profile: newProfile } = await AuthService.getUserProfile(currentUser.id);
-            setProfile(newProfile);
+            if (isMounted) {
+              setUser(null);
+              setProfile(null);
+            }
           } else {
-            // If it's a shelter type, handle shelter details
-            if (userProfile.user_type === 'shelter') {
-              // Check if shelter_details exists
-              const { data: shelterData } = await supabase
-                .from('shelter_details')
-                .select('*')
-                .eq('profile_id', currentUser.id);
+            // Set user if component is still mounted
+            if (isMounted) {
+              setUser(currentUser);
+            }
+            
+            // Get user profile
+            try {
+              const { profile: userProfile, error: profileError } = await AuthService.getUserProfile(currentUser.id);
+              
+              if (profileError) {
+                console.error('Error getting user profile:', profileError);
+                if (isMounted) setProfile(null);
+              } else if (!userProfile) {
+                // Create default profile if none exists
+                await AuthService.createProfile(
+                  currentUser.id, 
+                  'volunteer', // Default type 
+                  { fullName: currentUser.email?.split('@')[0] || 'User' }
+                );
                 
-              if (shelterData && shelterData.length > 0) {
-                setProfile({
-                  ...userProfile,
-                  shelter_details: shelterData[0]
-                });
+                // Fetch the newly created profile
+                const { profile: newProfile } = await AuthService.getUserProfile(currentUser.id);
+                if (isMounted) setProfile(newProfile);
               } else {
-                setProfile(userProfile);
+                // If it's a shelter type, handle shelter details
+                if (userProfile.user_type === 'shelter') {
+                  try {
+                    // Check if shelter_details exists
+                    const { data: shelterData } = await supabase
+                      .from('shelter_details')
+                      .select('*')
+                      .eq('profile_id', currentUser.id);
+                      
+                    if (shelterData && shelterData.length > 0 && isMounted) {
+                      setProfile({
+                        ...userProfile,
+                        shelter_details: shelterData[0]
+                      });
+                    } else if (isMounted) {
+                      setProfile(userProfile);
+                    }
+                  } catch (shelterError) {
+                    console.error('Error fetching shelter details:', shelterError);
+                    if (isMounted) setProfile(userProfile);
+                  }
+                } else if (isMounted) {
+                  setProfile(userProfile);
+                }
               }
-            } else {
-              setProfile(userProfile);
+            } catch (profileError) {
+              console.error('Error in profile handling:', profileError);
+              if (isMounted) setProfile(null);
             }
           }
         } else {
-          setUser(null);
-          setProfile(null);
+          if (isMounted) {
+            setUser(null);
+            setProfile(null);
+          }
         }
       } catch (err) {
         console.error('Auth initialization error:', err);
-        setUser(null);
-        setProfile(null);
+        if (isMounted) {
+          setUser(null);
+          setProfile(null);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+          setAuthInitialized(true);
+          console.log('Auth initialization complete');
+        }
       }
     };
 
@@ -115,29 +144,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Add Supabase auth change listener with proper type annotations
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: Session | null) => {
-        setUser(session?.user || null);
+        console.log('Auth state changed:', event);
+        
+        if (isMounted) {
+          setUser(session?.user || null);
+        }
         
         if (session?.user) {
           try {
             const { profile: userProfile } = await AuthService.getUserProfile(session.user.id);
-            setProfile(userProfile);
+            if (isMounted) {
+              setProfile(userProfile);
+            }
           } catch (err) {
             console.error('Profile fetch error during auth change:', err);
-            setProfile(null);
+            if (isMounted) {
+              setProfile(null);
+            }
           }
-        } else {
+        } else if (isMounted) {
           setProfile(null);
         }
         
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     );
 
     // Return cleanup function
     return () => {
+      console.log('Cleaning up auth context');
+      isMounted = false;
       authListener?.subscription.unsubscribe();
     };
-  }, []);
+  }, [authInitialized]);
 
   const signUp = async (email: string, password: string, userType: string, userData: ProfileData) => {
     try {
@@ -160,10 +201,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       
+      // First ensure we're fully logged out to prevent session conflicts
+      await AuthService.signOut();
+      
       const { user: authUser, error } = await AuthService.signIn(email, password);
       
       if (error) throw new Error(error);
       if (!authUser) throw new Error('No user returned from sign in');
+      
+      // Manually update local state
+      setUser(authUser);
+      
+      try {
+        // Fetch profile immediately to ensure we have it
+        const { profile: userProfile } = await AuthService.getUserProfile(authUser.id);
+        setProfile(userProfile);
+      } catch (profileError) {
+        console.error('Error fetching profile after login:', profileError);
+        // Continue without profile - it will be loaded during context initialization
+      }
       
       // Return in the expected format
       return { user: authUser };
@@ -175,12 +231,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    setLoading(true);
     try {
-      await AuthService.signOut();
-      // Immediately set user and profile to null
+      setLoading(true);
+      
+      // First clear our state
       setUser(null);
       setProfile(null);
+      
+      // Then sign out properly
+      await AuthService.signOut();
+      
+      // Force a full context reinitialization
+      setAuthInitialized(false);
       
       // Force a navigation to login page
       router.push('/auth/login');

@@ -29,14 +29,13 @@ export default function AnimalsPageContent() {
       };
       
       setCurrentFilters(initialFilters);
-      // Only fetch if we have actual filters
+      
+      // Check if we have active filters from URL parameters
       const hasActiveFilters = Object.values(initialFilters).some(value => value !== '');
-      if (hasActiveFilters) {
-        fetchAnimals(initialFilters);
-      } else {
-        // Just set loading to false if no filters to prevent unnecessary fetch
-        setLoading(false);
-      }
+      
+      // Fetch animals with filters if they exist, otherwise fetch all animals
+      fetchAnimals(initialFilters);
+      
       setInitialized(true);
     }
   }, [searchParams]);
