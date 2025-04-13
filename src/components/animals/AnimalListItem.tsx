@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
+import { FaMapMarkerAlt } from "react-icons/fa";
 
 interface AnimalListItemProps {
   animal: any;
@@ -12,14 +13,13 @@ interface AnimalListItemProps {
 }
 
 export default function AnimalListItem({
-  animal,
-  isShelterView = false,
-  onDelete,
-}: AnimalListItemProps) {
+                                         animal,
+                                         isShelterView = false,
+                                         onDelete,
+                                       }: AnimalListItemProps) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Format age display
   const formatAge = () => {
     const { age_years, age_months } = animal;
 
@@ -39,26 +39,9 @@ export default function AnimalListItem({
     if (age_years === 0) return `${age_months} ${getMonthLabel(age_months)}`;
     if (age_months === 0) return `${age_years} ${getYearLabel(age_years)}`;
 
-    return `${age_years} ${getYearLabel(
-      age_years
-    )}, ${age_months} ${getMonthLabel(age_months)}`;
+    return `${age_years} ${getYearLabel(age_years)}, ${age_months} ${getMonthLabel(age_months)}`;
   };
 
-  // Get health status class
-  const getHealthStatusClass = () => {
-    switch (animal.health_status) {
-      case "healthy":
-        return "bg-green-100 text-green-800";
-      case "needs_care":
-        return "bg-yellow-100 text-yellow-800";
-      case "urgent":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  // Format health status text
   const formatHealthStatus = () => {
     switch (animal.health_status) {
       case "healthy":
@@ -73,113 +56,89 @@ export default function AnimalListItem({
   };
 
   const handleDelete = async () => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete this animal? This action cannot be undone."
-      )
-    ) {
+    if (window.confirm("Ви впевнені, що хочете видалити тваринку?")) {
       try {
         setIsDeleting(true);
-
-        // Delete the animal record (cascade should handle related records)
         const { error } = await supabase
-          .from("animals")
-          .delete()
-          .eq("id", animal.id);
+            .from("animals")
+            .delete()
+            .eq("id", animal.id);
 
         if (error) throw error;
 
-        if (onDelete) {
-          onDelete(animal.id);
-        }
-
+        if (onDelete) onDelete(animal.id);
         router.refresh();
       } catch (error) {
         console.error("Error deleting animal:", error);
-        alert("Failed to delete the animal. Please try again.");
+        alert("Помилка при видаленні.");
       } finally {
         setIsDeleting(false);
       }
     }
   };
 
-  return (
-    <div className="bg-[#F7EFE3] rounded-lg shadow-md overflow-hidden transition duration-200 hover:scale-105">
-      <div className="relative h-48">
-        {animal.images && animal.images[0] ? (
-          <img
-            src={animal.images[0].image_url}
-            alt={animal.name}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-            <span className="text-gray-500">Немає зображення</span>
-          </div>
-        )}
-      </div>
+  const imageUrl = animal.images?.[0]?.image_url || "/assets/images/default-animal.jpg";
+  const location = animal.shelter?.address || "Невідома локація";
 
-      <div className="p-4">
-        <div className="flex justify-between items-start">
-          <h3 className="text-xl font-semibold text-gray-800">{animal.name}</h3>
-          <span
-            className={`text-xs px-2 py-1 rounded-full ${getHealthStatusClass()}`}
-          >
-            {formatHealthStatus()}
-          </span>
+  return (
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-4 bg-[#F7EFE3] rounded-lg px-6 py-4 shadow-sm border border-[#DDD]">
+        <div className="flex-shrink-0 w-[110px] h-[110px] rounded-md overflow-hidden">
+          <img
+              src={imageUrl}
+              alt={animal.name}
+              className="w-full h-full object-cover"
+          />
         </div>
 
-        <div className="mt-2 text-sm text-gray-600">
-          <p>
-            {animal.species === "dog"
-              ? "🐕"
-              : animal.species === "cat"
-              ? "🐈"
-              : "🐾"}{" "}
+        <div className="flex-1">
+          <h3 className="text-lg sm:text-xl font-bold text-[#432907] mb-1">
+            {animal.name}
+          </h3>
+          <p className="text-sm text-[#432907] mb-1 font-medium">
             {animal.breed || animal.species}
           </p>
-          <p>Вік: {formatAge()}</p>
-          <p>
-            Стать:{" "}
-            {animal.gender === "male"
-              ? "Самець"
-              : animal.gender === "female"
-              ? "Самка"
-              : "Невідомо"}
+          <p className="text-sm text-[#432907] line-clamp-2">
+            {animal.description || "Опис відсутній."}
           </p>
         </div>
 
-        <div className="mt-4 text-sm text-gray-600 line-clamp-2">
-          {animal.description || "Не надано опису."}
-        </div>
-
-        <div className="mt-4 flex flex-col gap-10">
-          <Link
-            href={`/animals/${animal.id}`}
-            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-          >
-            Переглянути
-          </Link>
-
-          {isShelterView && (
-            <div className="flex space-x-2">
-              <Link
-                href={`/dashboard/shelter/animals/edit/${animal.id}`}
-                className="text-sm px-3 py-1 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200"
-              >
-                Редагувати
-              </Link>
-              <button
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="text-sm px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 disabled:opacity-50 cursor-pointer"
-              >
-                {isDeleting ? "Видалення..." : "Видалити"}
-              </button>
+        <div className="flex flex-col items-end justify-between gap-2">
+          <div className="text-sm text-[#432907] text-right">
+            <p>• {formatAge()}</p>
+            <p>• {formatHealthStatus()}</p>
+            <div className="flex items-center justify-end gap-1 mt-1">
+              <FaMapMarkerAlt className="text-[#432907]" />
+              <span>{location}</span>
             </div>
-          )}
+          </div>
+
+          <div className="mt-2">
+            {!isShelterView ? (
+                <Link
+                    href={`/animals/${animal.id}`}
+                    className="text-sm px-4 py-1 rounded-full bg-[#B4B9EF] text-white font-semibold shadow hover:brightness-105 transition"
+                >
+                  ХОЧУ ЗАБРАТИ!
+                </Link>
+            ) : (
+                <div className="flex gap-2 mt-1">
+                  <Link
+                      href={`/dashboard/shelter/animals/edit/${animal.id}`}
+                      className="text-sm px-3 py-1 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200"
+                  >
+                    Редагувати
+                  </Link>
+                  <button
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                      className="text-sm px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 disabled:opacity-50"
+                  >
+                    {isDeleting ? "Видалення..." : "Видалити"}
+                  </button>
+                </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
   );
 }
