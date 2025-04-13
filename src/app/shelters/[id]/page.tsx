@@ -210,9 +210,23 @@ export default function ShelterDetailPage() {
               />
 
               <div className="px-2">
-                <h1 className="text-3xl font-bold mb-4">
-                  {shelter.shelter_details.shelter_name}
-                </h1>
+                <div className="flex justify-between items-center">
+                  <h1 className="text-3xl font-bold mb-4">
+                    {shelter.shelter_details.shelter_name}
+                  </h1>
+
+                  <div className="flex gap-2">
+                    <Image
+                      src="/assets/images/location_on.png"
+                      width={20}
+                      height={20}
+                      alt="location icon"
+                    />
+                    <span className="font-semibold text-sm">
+                      {shelter.shelter_details.location}
+                    </span>
+                  </div>
+                </div>
 
                 <ShelterInfo shelter={shelter} />
 
@@ -253,11 +267,8 @@ export default function ShelterDetailPage() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {animals.map((animal) => (
-                  <Link href={`/animals/${animal.id}`}>
-                    <div
-                      key={animal.id}
-                      className="overflow-hidden shadow-2xl rounded-sm cursor-pointer"
-                    >
+                  <Link key={animal.id} href={`/animals/${animal.id}`}>
+                    <div className="overflow-hidden shadow-2xl rounded-sm cursor-pointer">
                       <div className="relative h-48 ">
                         {animal.images && animal.images[0] ? (
                           <img
