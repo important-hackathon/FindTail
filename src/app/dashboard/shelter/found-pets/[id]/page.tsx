@@ -358,9 +358,9 @@ export default function FoundPetDetailsPage() {
                     e.currentTarget.src = "https://placehold.co/600x400?text=No+Image";
                   }}
                 />
-                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1">
+                {/* <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1">
                   {animal.image_url}
-                </div>
+                </div> */}
               </div>
             ) : (
               <div className="w-full h-64 bg-gray-200 flex items-center justify-center">

@@ -417,7 +417,7 @@ export default function CreateAnnouncementPage() {
               />
             </div>
             
-            <div className="md:col-span-2">
+            {/* <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Бажаний притулок (опційно)
               </label>
@@ -437,7 +437,7 @@ export default function CreateAnnouncementPage() {
               <p className="mt-1 text-sm text-gray-500">
                 Якщо ви бажаєте, щоб конкретний притулок допоміг з цією твариною, оберіть його тут.
               </p>
-            </div>
+            </div> */}
             
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect, FormEvent, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
@@ -99,6 +99,7 @@ export default function ReportFoundPetPage() {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
 
+      // Validate file size (5MB max)
       if (file.size > 5 * 1024 * 1024) {
         setMessage({
           type: "error",
@@ -107,6 +108,7 @@ export default function ReportFoundPetPage() {
         return;
       }
 
+      // Validate file type
       if (!file.type.startsWith("image/")) {
         setMessage({
           type: "error",
@@ -114,15 +116,32 @@ export default function ReportFoundPetPage() {
         });
         return;
       }
-
+      
+      console.log("Image selected:", file.name, "Size:", Math.round(file.size / 1024), "KB", "Type:", file.type);
+      
+      // Set the image file for upload
       setImageFile(file);
-
+      
       // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+        const result = reader.result as string;
+        setImagePreview(result);
+        console.log("Image preview created successfully");
       };
+      reader.onerror = () => {
+        console.error("Error creating image preview");
+        setMessage({
+          type: "error",
+          text: "Помилка створення попереднього перегляду зображення.",
+        });
+      };
+      
+      // Read the file as a data URL for preview only
       reader.readAsDataURL(file);
+      
+      // Clear any previous error messages
+      setMessage(null);
     }
   };
 
@@ -142,6 +161,8 @@ export default function ReportFoundPetPage() {
     try {
       setIsSubmitting(true);
       setMessage(null);
+      
+      console.log("Starting form submission process");
 
       // First, create a report record
       const { data: reportData, error: reportError } = await supabase
@@ -164,48 +185,126 @@ export default function ReportFoundPetPage() {
         .select("id")
         .single();
 
-      if (reportError) throw reportError;
+      if (reportError) {
+        console.error("Error creating report:", reportError);
+        throw reportError;
+      }
+      
+      console.log("Report created with ID:", reportData.id);
 
       // If an image was uploaded, store it
       if (imageFile) {
-        const filePath = `found_animals/${reportData.id}/${Date.now()}_${
-          imageFile.name
-        }`;
-        const { error: uploadError } = await supabase.storage
-          .from("found-animal-images")
-          .upload(filePath, imageFile);
-
-        if (uploadError) throw uploadError;
-
-        // Get public URL
-        const { data: urlData } = supabase.storage
-          .from("found_animal_images")
-          .getPublicUrl(filePath);
-
-        // Update the report with the image URL
-        await supabase
-          .from("found_animal_reports")
-          .update({
-            image_url: urlData.publicUrl,
-          })
-          .eq("id", reportData.id);
+        try {
+          console.log("Processing image upload");
+          
+          // The consistent bucket name to use
+          const BUCKET_NAME = 'found-animal-images';
+          
+          // Check if bucket exists and create if needed
+          const { data: buckets } = await supabase.storage.listBuckets();
+          const bucketExists = buckets?.some(bucket => bucket.name === BUCKET_NAME);
+          
+          if (!bucketExists) {
+            console.log(`Creating bucket '${BUCKET_NAME}'`);
+            await supabase.storage.createBucket(BUCKET_NAME, {
+              public: true
+            });
+          } else {
+            console.log(`Bucket '${BUCKET_NAME}' already exists`);
+          }
+          
+          // Create a safe filename with timestamp to avoid conflicts
+          const fileExt = imageFile.name.split('.').pop();
+          const fileName = `${reportData.id}_${Date.now()}.${fileExt}`;
+          const filePath = `${fileName}`;
+          
+          console.log("Uploading image to path:", filePath);
+          
+          // Upload the image file directly (not the base64 preview)
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from(BUCKET_NAME)
+            .upload(filePath, imageFile, {
+              cacheControl: '3600',
+              upsert: true
+            });
+            
+          if (uploadError) {
+            console.error('Error uploading image:', uploadError);
+            throw uploadError;
+          }
+          
+          console.log("Image uploaded successfully:", uploadData);
+          
+          // Get public URL
+          const { data: urlData } = supabase.storage
+            .from(BUCKET_NAME)
+            .getPublicUrl(filePath);
+          
+          if (!urlData || !urlData.publicUrl) {
+            console.error("Failed to get public URL for uploaded image");
+            throw new Error("Failed to get public URL for image");
+          }
+          
+          const imageUrl = urlData.publicUrl;
+          console.log("Image public URL:", imageUrl);
+          
+          // Update the report with the image URL
+          const { error: updateError } = await supabase
+            .from("found_animal_reports")
+            .update({
+              image_url: imageUrl,
+            })
+            .eq("id", reportData.id);
+            
+          if (updateError) {
+            console.error("Error updating report with image URL:", updateError);
+            throw updateError;
+          }
+          
+          console.log("Report updated with image URL");
+        } catch (uploadError: any) {
+          console.error("Image upload failed:", uploadError.message || uploadError);
+          // Don't throw the error - we want the form to continue even if image upload fails
+          // But we can notify the user about the partial success
+          setMessage({
+            type: "success",
+            text: "Ваше повідомлення надіслано, але виникла проблема із завантаженням зображення.",
+          });
+          
+          // Return early with partial success
+          setTimeout(() => {
+            router.push("/dashboard/volunteer");
+          }, 3000);
+          
+          return;
+        }
       }
 
       // Create notification for the shelter if one was selected
       if (formData.preferred_shelter) {
-        await supabase.from("notifications").insert({
-          user_id: formData.preferred_shelter,
-          type: "found_animal_report",
-          content: `Нове повідомлення про знайдену тварину - ${formData.species === 'dog' ? 'собаку' : formData.species === 'cat' ? 'кота' : 'тварину'}.`,
-          reference_id: reportData.id,
-          read: false,
-        });
+        try {
+          await supabase.from("notifications").insert({
+            user_id: formData.preferred_shelter,
+            type: "found_animal_report",
+            content: `Нове повідомлення про знайдену тварину - ${formData.species === 'dog' ? 'собаку' : formData.species === 'cat' ? 'кота' : 'тварину'}.`,
+            reference_id: reportData.id,
+            read: false,
+          });
+          
+          console.log("Notification created for shelter:", formData.preferred_shelter);
+        } catch (notifyError) {
+          console.error("Error creating notification:", notifyError);
+          // Continue with the submission even if notification fails
+        }
       }
 
+      // Success handling
       setMessage({
         type: "success",
         text: "Ваше повідомлення успішно надіслано! Дякуємо за допомогу тварині.",
       });
+      
+      console.log("Form submission completed successfully");
 
       // Reset form
       setFormData({
