@@ -40,8 +40,9 @@ export default function LoginForm({ isRegistered = false }: LoginFormProps) {
   return (
     <div className="max-w-md mx-auto px-8 py-4 sm:p-8 rounded-lg ">
       {isRegistered && (
-        <div className="mb-4 p-3 bg-green-100 text-green-700 rounded">
-          Реєстрація пройшла успішно! Будь ласка увійдітьв ваш акаунт.
+        <div className="mb-4 p-2 bg-green-100 text-green-700 rounded">
+          Реєстрація пройшла успішно! Активуйте ваш аккаунт за посиланням,
+          надіслане на вашу електронну пошту.
         </div>
       )}
 
