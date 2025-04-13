@@ -5,390 +5,276 @@ import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
+import Gallery from '@/components/ui/Gallery';
+import { ArrowLeft, MapPin } from 'lucide-react';
+import Image from 'next/image';
 
 export default function AnimalDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const { user, isVolunteer } = useAuth();
-  
+
   const [animal, setAnimal] = useState<any>(null);
   const [shelter, setShelter] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [contactForm, setContactForm] = useState({
-    message: '',
-    showForm: false,
-  });
+  const [contactForm, setContactForm] = useState({ message: '', showForm: false });
   const [sending, setSending] = useState(false);
   const [messageSent, setMessageSent] = useState(false);
-  
-  useEffect(() => {
-    fetchAnimal();
-  }, [id]);
-  
-  useEffect(() => {
-    if (user && animal) {
-      checkIfFavorite();
-    }
-  }, [user, animal]);
-  
+
+  useEffect(() => { fetchAnimal(); }, [id]);
+  useEffect(() => { if (user && animal) checkIfFavorite(); }, [user, animal]);
+
   const fetchAnimal = async () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const { data, error } = await supabase
-        .from('animals')
-        .select(`
-          *,
-          images:animal_images(*),
-          shelter:profiles!inner(*, shelter_details(*))
-        `)
-        .eq('id', id)
-        .single();
-        
+          .from('animals')
+          .select(`*, images:animal_images(*), shelter:profiles!inner(*, shelter_details(*))`)
+          .eq('id', id)
+          .single();
+
       if (error) throw error;
-      
       setAnimal(data);
       setShelter(data.shelter);
     } catch (err: any) {
-      console.error('Error fetching animal:', err);
       setError('Failed to load animal details');
     } finally {
       setLoading(false);
     }
   };
-  
+
   const checkIfFavorite = async () => {
     try {
-      const { data, error } = await supabase
-        .from('favorites')
-        .select('id')
-        .eq('animal_id', animal.id)
-        .eq('user_id', user?.id)
-        .single();
-        
-      if (error && error.code !== 'PGRST116') {
-        // PGRST116 is the error code for "no rows returned"
-        console.error('Error checking favorites:', error);
-        return;
-      }
-      
+      const { data } = await supabase
+          .from('favorites')
+          .select('id')
+          .eq('animal_id', animal.id)
+          .eq('user_id', user?.id)
+          .single();
+
       setIsFavorite(!!data);
-    } catch (err) {
-      console.error('Error checking if favorite:', err);
-    }
+    } catch (err) {}
   };
-  
+
   const toggleFavorite = async () => {
     if (!user) {
       router.push('/auth/login');
       return;
     }
-    
+
     try {
       if (isFavorite) {
-        // Remove from favorites
-        await supabase
-          .from('favorites')
-          .delete()
-          .eq('animal_id', animal.id)
-          .eq('user_id', user.id);
+        await supabase.from('favorites')
+            .delete()
+            .eq('animal_id', animal.id)
+            .eq('user_id', user.id);
       } else {
-        // Add to favorites
-        await supabase
-          .from('favorites')
-          .insert({
-            animal_id: animal.id,
-            user_id: user.id,
-          });
+        await supabase.from('favorites')
+            .insert({ animal_id: animal.id, user_id: user.id });
       }
-      
       setIsFavorite(!isFavorite);
-    } catch (err) {
-      console.error('Error toggling favorite:', err);
-      alert('Failed to update favorites. Please try again.');
-    }
+    } catch {}
   };
-  
+
   const handleContactFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!user) {
       router.push('/auth/login');
       return;
     }
-    
+
     try {
       setSending(true);
-      
-      // Insert message into the database
-      const { error } = await supabase
-        .from('messages')
-        .insert({
-          sender_id: user.id,
-          receiver_id: shelter.id,
-          content: contactForm.message,
-        });
-        
-      if (error) throw error;
-      
-      setMessageSent(true);
-      setContactForm({
-        message: '',
-        showForm: false,
+      const { error } = await supabase.from('messages').insert({
+        sender_id: user.id,
+        receiver_id: shelter.id,
+        content: contactForm.message,
       });
-    } catch (err) {
-      console.error('Error sending message:', err);
-      alert('Failed to send message. Please try again.');
+
+      if (error) throw error;
+      setMessageSent(true);
+      setContactForm({ message: '', showForm: false });
     } finally {
       setSending(false);
     }
   };
-  
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p>Loading...</p>
-      </div>
-    );
-  }
-  
-  if (error || !animal) {
-    return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="bg-red-100 text-red-700 p-4 rounded-md mb-6">
-          {error || 'Animal not found'}
-        </div>
-        <Link
-          href="/animals"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          Back to Animals
-        </Link>
-      </div>
-    );
-  }
-  
-  // Format age display
+
   const formatAge = () => {
     if (animal.age_years === 0 && animal.age_months === 0) return 'Unknown age';
-    if (animal.age_years === 0) return `${animal.age_months} month${animal.age_months !== 1 ? 's' : ''}`;
-    if (animal.age_months === 0) return `${animal.age_years} year${animal.age_years !== 1 ? 's' : ''}`;
-    return `${animal.age_years} year${animal.age_years !== 1 ? 's' : ''}, ${animal.age_months} month${animal.age_months !== 1 ? 's' : ''}`;
+    if (animal.age_years === 0) return `${animal.age_months} міс.`;
+    if (animal.age_months === 0) return `${animal.age_years} р.`;
+    return `${animal.age_years} р., ${animal.age_months} міс.`;
   };
-  
-  // Get health status info
+
   const getHealthStatusInfo = () => {
-    switch (animal.health_status) {
+    switch (animal?.health_status) {
       case 'healthy':
-        return {
-          label: 'Healthy',
-          color: 'bg-green-100 text-green-800',
-          description: 'This animal is in good health and ready for adoption.'
-        };
+        return { label: 'Healthy', color: 'bg-green-100 text-green-800' };
       case 'needs_care':
-        return {
-          label: 'Needs Care',
-          color: 'bg-yellow-100 text-yellow-800',
-          description: 'This animal has some health issues that require attention.'
-        };
+        return { label: 'Needs Care', color: 'bg-yellow-100 text-yellow-800' };
       case 'urgent':
-        return {
-          label: 'Urgent Care Needed',
-          color: 'bg-red-100 text-red-800',
-          description: 'This animal requires immediate medical attention and special care.'
-        };
+        return { label: 'Urgent Care Needed', color: 'bg-red-100 text-red-800' };
       default:
-        return {
-          label: 'Unknown',
-          color: 'bg-gray-100 text-gray-800',
-          description: 'No health information available.'
-        };
+        return { label: 'Unknown', color: 'bg-gray-100 text-gray-800' };
     }
   };
-  
+
   const healthStatus = getHealthStatusInfo();
-  
+
+  if (loading) {
+    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+  }
+
+  if (error || !animal) {
+    return (
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="bg-red-100 text-red-700 p-4 rounded-md mb-6">{error || 'Animal not found'}</div>
+          <Link href="/animals" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+            Back to Animals
+          </Link>
+        </div>
+    );
+  }
+
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="mb-6">
-        <Link
-          href="/animals"
-          className="text-blue-600 hover:text-blue-800"
-        >
-          ← Back to Animals
-        </Link>
-      </div>
-      
-      <div className="rounded-lg shadow-md overflow-hidden">
-        <div className="md:flex">
-          {/* Image Gallery */}
-          <div className="md:w-1/2">
-            {animal.images && animal.images.length > 0 ? (
-              <div className="relative h-96">
-                <img 
-                  src={animal.images[0].image_url} 
-                  alt={animal.name} 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ) : (
-              <div className="w-full h-96 bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-500">No Image Available</span>
-              </div>
-            )}
+      <div className="bg-[#FDF5EB] px-6 py-10 min-h-screen relative overflow-hidden text-[#432907]">
+        <Image
+            src="/assets/images/line-wave-2.svg"
+            alt="line wave 2"
+            width={800}
+            height={300}
+            className="absolute right-0 bottom-120 z-0 pointer-events-none"
+        />
+        <Image
+            src="/assets/images/line-wave-3.svg"
+            alt="line wave 3"
+            width={700}
+            height={300}
+            className="absolute left-0 top-120 z-0 pointer-events-none"
+        />
+        <div
+            className="relative z-10 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-10 border-[#A9BFF2] border-b pb-10">
+          <div>
+            <Link href="/animals"
+                  className="flex items-center justify-center gap-1 px-4 py-2 max-w-26 rounded-full text-sm font-semibold shadow mb-4 bg-[#D7DDE7] hover:bg-gray-700]">
+              <ArrowLeft size={16}/> Назад
+            </Link>
+            <Gallery images={animal.images}/>
           </div>
-          
-          {/* Animal Details */}
-          <div className="md:w-1/2 p-6">
-            <div className="flex justify-between items-start">
-              <h1 className="text-3xl font-bold text-gray-900">{animal.name}</h1>
-              
-              <button
-                onClick={toggleFavorite}
-                className={`p-2 rounded-full ${
-                  isFavorite ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'
-                } hover:bg-opacity-80`}
-                aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-              >
-                {isFavorite ? '❤️' : '🤍'}
-              </button>
-            </div>
-            
-            <div className="mt-4">
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${healthStatus.color}`}>
-                {healthStatus.label}
-              </span>
-            </div>
-            
-            <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-gray-500">Species</p>
-                <p className="font-medium">
-                  {animal.species === 'dog' ? '🐕 Dog' : animal.species === 'cat' ? '🐈 Cat' : '🐾 Other'}
-                </p>
+
+          <div className="flex flex-col justify-between text-[#432907] z-10">
+            <div>
+              <div className="flex justify-between items-start gap-4 relative">
+                <h1 className="text-3xl font-bold">{animal.name}</h1>
+
+                <div className="absolute bottom-9 -left-7 md:bottom-5 md:-left-10">
+                  <Image
+                      src="/assets/images/pet-ears.svg"
+                      alt="ears"
+                      width={50}
+                      height={50}
+                  />
+                </div>
+
+                <div className="text-sm font-semibold text-right">
+                  <div className="flex items-center justify-end gap-2 text-[#432907]">
+                    <span className='text-[#A9BFF2]'><MapPin size={16}/></span> {shelter?.shelter_details?.location}
+                  </div>
+                  <p>
+                    Притулок: “{shelter?.shelter_details?.shelter_name}”
+                  </p>
+                </div>
               </div>
-              
-              <div>
-                <p className="text-gray-500">Breed</p>
-                <p className="font-medium">{animal.breed || 'Unknown'}</p>
+
+              <div className="mt-4 text-sm space-y-1 z-10">
+                <p><b>Вік:</b> {formatAge()}</p>
+                <p><b>Стать:</b> {animal.gender}</p>
+                <p><b>Стерилізований:</b> {animal.sterilized ? 'Так' : 'Ні'}</p>
+                <p><b>Порода:</b> {animal.breed || '—'}</p>
+                <p><b>Розмір:</b> {animal.size}</p>
+                <p><b>Стан здоров’я:</b> {healthStatus.label}</p>
+                <p><b>Вакцинація:</b> {animal.vaccinated ? 'Так' : 'Ні'}</p>
+                <p><b>Звик до туалету:</b> {animal.house_trained ? 'Так' : 'Ні'}</p>
+                <p className=''><b>Їсть:</b> {animal.food_preference || '—'}</p>
+                <p className="border-[#A9BFF2] border-y text-sm py-4 mt-2 z-10">{animal.description || 'Опис відсутній'}</p>
               </div>
-              
-              <div>
-                <p className="text-gray-500">Age</p>
-                <p className="font-medium">{formatAge()}</p>
-              </div>
-              
-              <div>
-                <p className="text-gray-500">Gender</p>
-                <p className="font-medium">
-                  {animal.gender === 'male' ? 'Male' : animal.gender === 'female' ? 'Female' : 'Unknown'}
-                </p>
-              </div>
+
             </div>
-            
-            <div className="mt-6">
-              <h2 className="text-lg font-semibold">About {animal.name}</h2>
-              <p className="mt-2 text-gray-600">
-                {animal.description || 'No description provided.'}
-              </p>
-            </div>
-            
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <h2 className="text-lg font-semibold">Shelter Information</h2>
-              <p className="mt-2 text-gray-600">
-                {shelter.shelter_details.shelter_name || 'Unknown Shelter'}
-              </p>
-              <p className="text-gray-600">
-                Location: {shelter.shelter_details.location || 'Unknown'}
-              </p>
-              
-              <div className="mt-4 flex flex-wrap gap-2">
-                {isVolunteer && (
-                  <button
-                    onClick={() => setContactForm({ ...contactForm, showForm: true })}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                  >
-                    Contact Shelter
-                  </button>
-                )}
-                
-                <Link
-                  href={`/shelters/${shelter.id}`}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-                >
-                  View Shelter Profile
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Health Status Description */}
-        <div className={`p-4 ${healthStatus.color}`}>
-          <p>{healthStatus.description}</p>
-        </div>
-      </div>
-      
-      {/* Contact Form Modal */}
-      {contactForm.showForm && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">Contact About {animal.name}</h3>
+
+            <div className="mt-6 pt-4 text-sm space-y-1 z-10">
+              <p><b>Контакт:</b> {shelter?.shelter_details?.phone || '—'}</p>
+              <p><b>Email:</b> {shelter?.email}</p>
+              <p><b>Instagram:</b> @{shelter?.shelter_details?.instagram}</p>
+
+              <div className=" flex justify-end">
                 <button
-                  onClick={() => setContactForm({ ...contactForm, showForm: false })}
-                  className="text-gray-400 hover:text-gray-500"
+                    onClick={toggleFavorite}
+                    className={`mr-4 px-4 py-2 rounded-full text-sm font-semibold shadow ${
+                        isFavorite ? 'bg-red-100 text-red-600' : 'bg-[#D7DDE7] text-gray-600'
+                    }`}
                 >
-                  &times;
+                  {isFavorite ? '❤️ В улюблених' : '🤍 Додати в обране'}
+                </button>
+
+                <button
+                    onClick={() => setContactForm({...contactForm, showForm: true})}
+                    className="bg-[#A9C5E2] hover:bg-[#90b4db] px-6 py-2 rounded-full text-sm font-semibold text-white shadow"
+                >
+                  Хочу забрати!
                 </button>
               </div>
-              
-              {messageSent ? (
-                <div className="bg-green-100 text-green-700 p-4 rounded-md mb-4">
-                  Your message has been sent! The shelter will contact you soon.
-                </div>
-              ) : (
-                <form onSubmit={handleContactFormSubmit}>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Message to Shelter
-                    </label>
-                    <textarea
-                      required
-                      rows={4}
-                      value={contactForm.message}
-                      onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="I'm interested in adopting this animal..."
-                    />
-                  </div>
-                  
-                  <div className="flex justify-end space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => setContactForm({ ...contactForm, showForm: false })}
-                      className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={sending}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-                    >
-                      {sending ? 'Sending...' : 'Send Message'}
-                    </button>
-                  </div>
-                </form>
-              )}
             </div>
           </div>
         </div>
-      )}
-    </div>
+
+        <div className="mt-4 text-xl font-bold z-10 text-center">
+          Схожі оголошення
+        </div>
+
+        {contactForm.showForm && (
+            <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 z-10">
+              <div className="bg-white max-w-md w-full rounded-xl p-6 shadow-lg">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold">Повідомлення про {animal.name}</h3>
+                  <button onClick={() => setContactForm({...contactForm, showForm: false})}>
+                    &times;
+                  </button>
+                </div>
+                {messageSent ? (
+                    <div className="bg-green-100 text-green-700 p-4 rounded-md">
+                      Повідомлення надіслано!
+                    </div>
+                ) : (
+                    <form onSubmit={handleContactFormSubmit} className="space-y-4">
+                <textarea
+                    rows={4}
+                    required
+                    value={contactForm.message}
+                    onChange={(e) => setContactForm({...contactForm, message: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    placeholder="Ваше повідомлення..."
+                />
+                      <div className="flex justify-end gap-2 z-10">
+                        <button type="button" onClick={() => setContactForm({...contactForm, showForm: false})}>
+                          Скасувати
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={sending}
+                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                        >
+                          {sending ? 'Надсилання...' : 'Надіслати'}
+                        </button>
+                      </div>
+                    </form>
+                )}
+              </div>
+            </div>
+        )}
+      </div>
   );
 }
