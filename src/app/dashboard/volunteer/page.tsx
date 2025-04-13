@@ -46,7 +46,7 @@ export default function VolunteerDashboard() {
       active: true
     },
     {
-      title: "Повідомити про знайдену тварину",
+      title: "Знайдена тваринка",
       description: "Повідомте про тварину, яку ви знайшли",
       icon: <Send size={24} className="text-[#A9BFF2]" />,
       path: "/dashboard/volunteer/found",
