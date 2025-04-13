@@ -13,23 +13,26 @@ export default function AnimalsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
+  const [currentFilters, setCurrentFilters] = useState<any>(null);
 
-  const initialFilters = {
-    species: searchParams.get('species') || '',
-    gender: searchParams.get('gender') || '',
-    age_max: searchParams.get('age_max') || '',
-    health_status: searchParams.get('health_status') || '',
-    location: searchParams.get('location') || '',
-    search: searchParams.get('search') || '',
-  };
-
+  // Wait for searchParams to be available before initializing
   useEffect(() => {
-    // Only fetch animals if the component hasn't been initialized yet
-    if (!initialized) {
+    if (!initialized && searchParams) {
+      // Build filters from URL parameters
+      const initialFilters = {
+        species: searchParams.get('species') || '',
+        gender: searchParams.get('gender') || '',
+        age_max: searchParams.get('age_max') || '',
+        health_status: searchParams.get('health_status') || '',
+        location: searchParams.get('location') || '',
+        search: searchParams.get('search') || '',
+      };
+      
+      setCurrentFilters(initialFilters);
       fetchAnimals(initialFilters);
       setInitialized(true);
     }
-  }, [initialized]);
+  }, [searchParams, initialized]);
 
   const fetchAnimals = async (filters: any) => {
     try {
@@ -126,6 +129,7 @@ export default function AnimalsPage() {
   };
 
   const handleSearch = (filters: any) => {
+    setCurrentFilters(filters);
     fetchAnimals(filters);
   };
 
@@ -150,7 +154,7 @@ export default function AnimalsPage() {
         </p>
       </div>
 
-      <AnimalSearch onSearch={handleSearch} initialFilters={initialFilters}/>
+      <AnimalSearch onSearch={handleSearch} initialFilters={currentFilters || {}}/>
 
       <div className="mt-10">
         {error && (
