@@ -13,7 +13,7 @@ export default function AnimalsPageContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
-  const [currentFilters, setCurrentFilters] = useState<any>(null);
+  const [currentFilters, setCurrentFilters] = useState<any>({});
 
   // Wait for searchParams to be available before initializing
   useEffect(() => {
@@ -29,10 +29,17 @@ export default function AnimalsPageContent() {
       };
       
       setCurrentFilters(initialFilters);
-      fetchAnimals(initialFilters);
+      // Only fetch if we have actual filters
+      const hasActiveFilters = Object.values(initialFilters).some(value => value !== '');
+      if (hasActiveFilters) {
+        fetchAnimals(initialFilters);
+      } else {
+        // Just set loading to false if no filters to prevent unnecessary fetch
+        setLoading(false);
+      }
       setInitialized(true);
     }
-  }, [searchParams, initialized]);
+  }, [searchParams]);
 
   const fetchAnimals = async (filters: any) => {
     try {
@@ -113,8 +120,10 @@ export default function AnimalsPageContent() {
         const locationTerm = filters.location.toLowerCase();
         filteredAnimals = filteredAnimals.filter(animal => 
           animal.shelter && 
-          animal.shelter.address && 
-          animal.shelter.address.toLowerCase().includes(locationTerm)
+          ((animal.shelter.address && animal.shelter.address.toLowerCase().includes(locationTerm)) ||
+           (animal.shelter.shelter_details && 
+            animal.shelter.shelter_details.location && 
+            animal.shelter.shelter_details.location.toLowerCase().includes(locationTerm)))
         );
       }
 

@@ -46,17 +46,22 @@ export default function AnimalSearch({ onSearch, initialFilters = {} }: AnimalSe
     search: initialFilters.search || '',
   });
 
-  // Update filters if searchParams or initialFilters change
+  // Update filters from URL parameters when component mounts or searchParams change
   useEffect(() => {
     if (searchParams) {
-      setFilters({
-        species: initialFilters.species || searchParams.get('species') || '',
-        gender: initialFilters.gender || searchParams.get('gender') || '',
-        age_max: initialFilters.age_max || searchParams.get('age_max') || '',
-        health_status: initialFilters.health_status || searchParams.get('health_status') || '',
-        location: initialFilters.location || searchParams.get('location') || '',
-        search: initialFilters.search || searchParams.get('search') || '',
-      });
+      // Create a new filters object, prioritizing URL params
+      const newFilters = {
+        species: searchParams.get('species') || initialFilters.species || '',
+        gender: searchParams.get('gender') || initialFilters.gender || '',
+        age_max: searchParams.get('age_max') || initialFilters.age_max || '',
+        health_status: searchParams.get('health_status') || initialFilters.health_status || '',
+        location: searchParams.get('location') || initialFilters.location || '',
+        search: searchParams.get('search') || initialFilters.search || '',
+      };
+      
+      setFilters(newFilters);
+      
+      // Note: We removed the onSearch call here to prevent infinite loops
     }
   }, [searchParams, initialFilters]);
 
@@ -84,6 +89,23 @@ export default function AnimalSearch({ onSearch, initialFilters = {} }: AnimalSe
 
     router.push(`/animals${params.toString() ? `?${params.toString()}` : ''}`);
   };
+
+  const clearFilters = () => {
+    const emptyFilters = {
+      species: '',
+      gender: '',
+      age_max: '',
+      health_status: '',
+      location: '',
+      search: '',
+    };
+    setFilters(emptyFilters);
+    onSearch({});
+    router.push('/animals');
+  };
+
+  // Check if any filters are active
+  const hasActiveFilters = Object.values(filters).some(value => value !== '');
 
   return (
       <section className="bg-[#FDF5EB] py-10 text-[#432907]">
@@ -140,12 +162,23 @@ export default function AnimalSearch({ onSearch, initialFilters = {} }: AnimalSe
                 onChange={handleInputChange}
                 className="w-3/4 sm:w-[600px] px-4 py-2 rounded-full bg-[#DDE3EF] text-[#432907] font-medium placeholder:text-[#aaa] focus:outline-none"
             />
-            <button
+            <div className="flex gap-2">
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="px-6 py-2 rounded-full bg-[#F7EFE3] text-[#432907] font-bold text-sm hover:bg-[#E6DBCB] transition"
+                >
+                  ОЧИСТИТИ
+                </button>
+              )}
+              <button
                 type="submit"
                 className="px-6 py-2 rounded-full bg-[#88A7DC] text-white font-bold text-sm hover:bg-[#6c8bc6] transition"
-            >
-              ЗНАЙТИ
-            </button>
+              >
+                ЗНАЙТИ
+              </button>
+            </div>
           </div>
         </form>
       </section>

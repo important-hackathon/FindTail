@@ -3,17 +3,42 @@
 import Image from 'next/image';
 import Dropdown from '@/components/ui/Dropdown';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Find() {
+    const router = useRouter();
     const [filters, setFilters] = useState({
         species: '',
         age: '',
         health: '',
         location: '',
+        search: '',
     });
 
     const handleChange = (key: string, value: string) => {
         setFilters((prev) => ({ ...prev, [key]: value }));
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFilters((prev) => ({ ...prev, search: e.target.value }));
+    };
+
+    const handleSearch = () => {
+        // Convert filters to URL parameters
+        const params = new URLSearchParams();
+        
+        // Map the filter keys to match the expected keys in the animals search page
+        if (filters.species) params.set('species', filters.species);
+        if (filters.age) params.set('age_max', filters.age);
+        if (filters.health) params.set('health_status', filters.health);
+        if (filters.location) params.set('location', filters.location);
+        if (filters.search) params.set('search', filters.search);
+        
+        // Only add params if at least one filter is selected
+        const hasFilters = Object.values(filters).some(value => value !== '');
+        
+        // Navigate to animals page with filters
+        router.push(`/animals${hasFilters && params.toString() ? `?${params.toString()}` : ''}`);
     };
 
     const speciesOptions = [
@@ -24,16 +49,22 @@ export default function Find() {
 
     const ageOptions = [
         { label: 'До 1 року', value: '1' },
-        { label: '1-3 роки', value: '1-3' },
-        { label: '3+ років', value: '3+' },
+        { label: '1-3 роки', value: '3' },
+        { label: '3+ років', value: '10' },
     ];
 
     const healthOptions = [
         { label: 'Здоровий', value: 'healthy' },
         { label: 'Потребує лікування', value: 'needs_care' },
+        { label: 'Терміново', value: 'urgent' },
     ];
 
-    const locationOptions = [{ label: 'Львів', value: 'lviv' }];
+    const locationOptions = [
+        { label: 'Львів', value: 'Львів' },
+        { label: 'Київ', value: 'Київ' },
+        { label: 'Харків', value: 'Харків' },
+        { label: 'Одеса', value: 'Одеса' },
+    ];
 
     return (
         <section className="relative bg-[#E4EAF1] overflow-hidden">
@@ -63,6 +94,7 @@ export default function Find() {
                     </h2>
                     <p className="text-base sm:text-lg mb-6">
                         Після початку повномасштабної війни тисячі тварин залишились без домівок. Ми створили платформу, щоб дати кожній тварині шанс на нове життя.
+                        Приєднуйся до спільноти небайдужих — допомагай, підтримуй, поширюй!
                     </p>
 
                     <div className="space-y-4">
@@ -92,7 +124,7 @@ export default function Find() {
                                 value={filters.health}
                                 onChange={(val) => handleChange('health', val)}
                                 options={healthOptions}
-                                placeholder="Стан здоров’я"
+                                placeholder="Стан здоров'я"
                                 bgColor="#FDF5EB"
                                 textColor="#432907"
                                 hoverColor="#E6DBCB"
@@ -115,9 +147,14 @@ export default function Find() {
                             <input
                                 type="text"
                                 placeholder="Введіть тут ..."
+                                value={filters.search}
+                                onChange={handleInputChange}
                                 className="flex-1 px-4 py-2 rounded-full bg-[#FDF5EB] placeholder-[#A1A1A1] focus:outline-none"
                             />
-                            <button className="px-8 py-2 rounded-full bg-[#A9BFF2] text-white font-semibold hover:bg-[#93a9d5] transition">
+                            <button 
+                                onClick={handleSearch}
+                                className="px-8 py-2 rounded-full bg-[#A9BFF2] text-white font-semibold hover:bg-[#93a9d5] transition"
+                            >
                                 знайти
                             </button>
                         </div>
