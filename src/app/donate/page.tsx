@@ -326,65 +326,6 @@ export default function DonatePage() {
           )}
         </div>
       </div>
-
-      <div className="mt-16">
-        <h2 className="text-2xl font-bold text-[#432907] mb-6 text-center">Наші успішні історії</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="h-52 relative">
-              <Image 
-                src="/assets/images/success-story-1.jpg" 
-                alt="Success story" 
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="p-6">
-              <h3 className="font-bold text-lg text-[#432907] mb-2">Історія Барні</h3>
-              <p className="text-gray-600 mb-4">
-                Барні був знайдений на вулиці в дуже поганому стані. Завдяки вашим пожертвам, ми змогли
-                забезпечити йому необхідне лікування, і тепер він живе щасливим життям у новій родині.
-              </p>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="h-52 relative">
-              <Image 
-                src="/assets/images/success-story-2.jpg" 
-                alt="Success story" 
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="p-6">
-              <h3 className="font-bold text-lg text-[#432907] mb-2">Історія Лілі</h3>
-              <p className="text-gray-600 mb-4">
-                Лілі була знайдена у коробці біля смітника. Завдяки підтримці донорів, ми змогли
-                виходити її та знайти їй люблячих господарів, які тепер не уявляють життя без неї.
-              </p>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="h-52 relative">
-              <Image 
-                src="/assets/images/success-story-3.jpg" 
-                alt="Success story" 
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="p-6">
-              <h3 className="font-bold text-lg text-[#432907] mb-2">Історія Рекса</h3>
-              <p className="text-gray-600 mb-4">
-                Рекс потребував складної операції після нещасного випадку. Завдяки пожертвам наших
-                донорів, ми змогли оплатити операцію, і тепер Рекс здоровий та щасливий.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
