@@ -12,7 +12,7 @@ import ContactForm from "@/components/shelters/ContactForm";
 import BackBtn from "@/components/shelters/BackBtn";
 import Image from "next/image";
 import ShelterContactInfo from "@/components/shelters/ShelterContactInfo";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, MapPin } from "lucide-react";
 import Carousel from "@/components/ui/Carousel";
 import Link from "next/link";
 
@@ -216,12 +216,7 @@ export default function ShelterDetailPage() {
                   </h1>
 
                   <div className="flex gap-2">
-                    <Image
-                      src="/assets/images/location_on.png"
-                      width={20}
-                      height={20}
-                      alt="location icon"
-                    />
+                    <MapPin size={16} />
                     <span className="font-semibold text-sm">
                       {shelter.shelter_details.location}
                     </span>
